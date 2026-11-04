@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import clsx from 'clsx';
 import { Barre, GuitarChordVoicing } from '../types/music';
+import { getThemePreset, ThemePreset } from '../engine/themes/themePresets';
 
 /**
  * Props for the GuitarFretboard chord diagram component.
@@ -10,8 +11,8 @@ export interface GuitarFretboardProps {
   voicing: GuitarChordVoicing;
   /** Primary chord symbol displayed in the header label (e.g. "Fm9"). */
   chordName: string;
-  /** Visual theme ('pastel' or 'dark'). */
-  theme?: 'pastel' | 'dark';
+  /** Visual theme identifier or ThemePreset. */
+  theme?: string | ThemePreset;
   /** Optional container class name. */
   className?: string;
 }
@@ -57,13 +58,20 @@ export const GuitarFretboard: React.FC<GuitarFretboardProps> = ({
   theme = 'pastel',
   className,
 }) => {
-  const isDark = theme === 'dark';
+  const preset: ThemePreset = useMemo(() => {
+    if (typeof theme === 'string') {
+      return getThemePreset(theme);
+    }
+    return theme;
+  }, [theme]);
+
   const baseFret = voicing.baseFret ?? 1;
   const isNutVisible = baseFret <= 1;
   const barres = voicing.barres ?? [];
 
-  const mainColor = isDark ? '#FFFFFF' : '#2E104D';
-  const mutedColor = isDark ? '#71717A' : 'rgba(46, 16, 77, 0.45)';
+  const isDark = preset.isDark;
+  const mainColor = preset.textColor;
+  const mutedColor = preset.textMutedColor;
   const gridLineColor = isDark ? 'rgba(255, 255, 255, 0.22)' : 'rgba(46, 16, 77, 0.35)';
 
   return (
@@ -290,34 +298,26 @@ export const GuitarFretboard: React.FC<GuitarFretboardProps> = ({
       {/* Right Column: "Made with Swan Glide by Swanek Audio" Branding */}
       <div className="flex flex-col items-start justify-center pr-2 sm:pr-4">
         <span
-          className={clsx(
-            'text-xs font-normal transition-colors duration-200',
-            isDark ? 'text-zinc-400' : 'text-[#2E104D]/70'
-          )}
+          className="text-xs font-normal transition-colors duration-200"
+          style={{ color: mutedColor }}
         >
           Made with
         </span>
         <span
-          className={clsx(
-            'text-lg sm:text-xl font-bold tracking-tight transition-colors duration-200',
-            isDark ? 'text-white' : 'text-[#2E104D]'
-          )}
+          className="text-lg sm:text-xl font-bold tracking-tight transition-colors duration-200"
+          style={{ color: mainColor }}
         >
           Swan Glide
         </span>
         <span
-          className={clsx(
-            'text-xs font-medium transition-colors duration-200',
-            isDark ? 'text-zinc-400' : 'text-[#2E104D]/75'
-          )}
+          className="text-xs font-medium transition-colors duration-200"
+          style={{ color: mutedColor }}
         >
           by Swanek Audio
         </span>
         <span
-          className={clsx(
-            'text-[11px] font-normal transition-colors duration-200 mt-0.5',
-            isDark ? 'text-zinc-500' : 'text-[#2E104D]/55'
-          )}
+          className="text-[11px] font-normal transition-colors duration-200 mt-0.5"
+          style={{ color: mutedColor }}
         >
           (Link In Bio)
         </span>

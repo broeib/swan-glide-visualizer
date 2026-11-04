@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Swan Glide Headless Render Target</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      background: #000;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    #render-canvas {
+      width: 1080px;
+      height: 1920px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="render-canvas" width="1080" height="1920"></canvas>
+
+  <script>
+    const canvas = document.getElementById('render-canvas');
+    const ctx = canvas.getContext('2d', { alpha: false });
+
+    // Theme preset palettes matching the application specifications
+    const THEMES = {
+      pastel: {
+        id: 'pastel',
+        name: 'Swan Pastel',
+        isDark: false,
+        bgGradient: ['#fad4e6', '#f7cfe3', '#fad6e8'],
+        textColor: '#2E104D',
+        textMutedColor: 'rgba(46, 16, 77, 0.55)',
+        accentColor: '#D946EF',
+        gridLineColor: 'rgba(46, 16, 77, 0.04)',
+        barLineColor: 'rgba(46, 16, 77, 0.18)',
+        voicePalette: ['#4A154B', '#3B82F6', '#06B6D4', '#D946EF', '#F43F5E', '#A855F7'],
+        playheadColor: '#2E104D',
+        playheadGlowColor: '#D946EF',
+        keyboardWhite: '#FFFFFF',
+        keyboardWhiteStroke: 'rgba(46, 16, 77, 0.15)',
+        keyboardBlack: '#2E104D',
+        keyboardBlackStroke: '#1A0830'
+      },
+      dark: {
+        id: 'dark',
+        name: 'Neon Midnight',
+        isDark: true,
+        bgGradient: ['#1c0808', '#120404', '#0a0202'],
+        textColor: '#FFFFFF',
+        textMutedColor: 'rgba(255, 255, 255, 0.55)',
+        accentColor: '#FDE047',
+        gridLineColor: 'rgba(255, 255, 255, 0.04)',
+        barLineColor: 'rgba(255, 255, 255, 0.16)',
+        voicePalette: ['#EF4444', '#F97316', '#FBBF24', '#FDE047', '#FEF08A', '#FFFFFF'],
+        playheadColor: '#FFFFFF',
+        playheadGlowColor: '#F97316',
+        keyboardWhite: '#27272A',
+        keyboardWhiteStroke: '#3F3F46',
+        keyboardBlack: '#09090B',
+        keyboardBlackStroke: '#000000'
+      },
+      sunset: {
+        id: 'sunset',
+        name: 'Warm Sunset',
+        isDark: true,
+        bgGradient: ['#2B1038', '#5A1E4A', '#99334D'],
+        textColor: '#FFF4EC',
+        textMutedColor: 'rgba(255, 244, 236, 0.65)',
+        accentColor: '#F4A261',
+        gridLineColor: 'rgba(255, 244, 236, 0.05)',
+        barLineColor: 'rgba(255, 244, 236, 0.20)',
+        voicePalette: ['#7209B7', '#4361EE', '#F72585', '#F77F00', '#FCBF49', '#FFF3B0'],
+        playheadColor: '#FFF4EC',
+        playheadGlowColor: '#F77F00',
+        keyboardWhite: '#FAF0E6',
+        keyboardWhiteStroke: 'rgba(90, 30, 74, 0.3)',
+        keyboardBlack: '#2B1038',
+        keyboardBlackStroke: '#180820'
+      },
+      lofi: {
+        id: 'lofi',
+        name: 'Lofi Slate',
+        isDark: true,
+        bgGradient: ['#1E1E2E', '#181825', '#11111B'],
+        textColor: '#CDD6F4',
+        textMutedColor: 'rgba(205, 214, 244, 0.60)',
+        accentColor: '#89B4FA',
+        gridLineColor: 'rgba(205, 214, 244, 0.04)',
+        barLineColor: 'rgba(205, 214, 244, 0.16)',
+        voicePalette: ['#89B4FA', '#74C7EC', '#94E2D5', '#A6E3A1', '#F9E2AF', '#FAB387'],
+        playheadColor: '#CDD6F4',
+        playheadGlowColor: '#89B4FA',
+        keyboardWhite: '#313244',
+        keyboardWhiteStroke: '#45475A',
+        keyboardBlack: '#181825',
+        keyboardBlackStroke: '#11111B'
+      },
+      cream: {
+        id: 'cream',
+        name: 'Warm Paper',
+        isDark: false,
+        bgGradient: ['#F7F3E9', '#EFE8D8', '#E5DCC9'],
+        textColor: '#2C2523',
+        textMutedColor: 'rgba(44, 37, 35, 0.58)',
+        accentColor: '#8C3B52',
+        gridLineColor: 'rgba(44, 37, 35, 0.05)',
+        barLineColor: 'rgba(44, 37, 35, 0.18)',
+        voicePalette: ['#2D3142', '#4F5D75', '#8C3B52', '#B85D19', '#4E6E58', '#6B4C82'],
+        playheadColor: '#2C2523',
+        playheadGlowColor: '#8C3B52',
+        keyboardWhite: '#FFFFFF',
+        keyboardWhiteStroke: '#D8CFBF',
+        keyboardBlack: '#2C2523',
+        keyboardBlackStroke: '#1B1615'
+      }
+    };
+
+    // Global state managed by headless puppeteer runner
+    window.__PIPELINE_STATE = {
+      progression: null,
+      options: {
+        instrument: 'guitar',
+        theme: 'pastel',
+        bpm: 60,
+        artistHandle: '@ultravioletchorus',
+        maxDurationSeconds: 0
+      },
+      currentBeat: 0,
+      totalBeats: 24,
+      totalDurationSeconds: 24,
+      themePreset: THEMES.pastel
+    };
+
+    // Default mock reference progression if none loaded
+    const DEFAULT_REFERENCE_PROGRESSION = {
+      bpm: 60,
+      steps: [
+        {
+          chordName: 'Dbmaj9',
+          chordRoot: 'D',
+          chordAccidental: 'b',
+          chordExtension: 'maj9',
+          artistHandle: '@ultravioletchorus',
+          durationBeats: 4,
+          voices: [
+            { pitch: 'Db2', midi: 37, label: 'Db2', color: '#4A154B' },
+            { pitch: 'Db4', midi: 61, label: 'Db4', color: '#3B82F6' },
+            { pitch: 'Eb4', midi: 63, label: 'Eb4', color: '#06B6D4' },
+            { pitch: 'F4', midi: 65, label: 'F4', color: '#D946EF' },
+            { pitch: 'Ab4', midi: 68, label: 'Ab4', color: '#F43F5E' },
+            { pitch: 'C5', midi: 72, label: 'C5', color: '#A855F7' }
+          ],
+          guitarDiagram: {
+            frets: ['x', 4, 3, 5, 4, 'x'],
+            baseFret: 3,
+            stringNotes: ['x', 'Db', 'F', 'C', 'Eb', 'x']
+          }
+        },
+        {
+          chordName: 'C7(#9)',
+          chordRoot: 'C',
+          chordAccidental: '',
+          chordExtension: '7(#9)',
+          artistHandle: '@ultravioletchorus',
+          durationBeats: 4,
+          voices: [
+            { pitch: 'C3', midi: 48, label: 'C3', color: '#4A154B' },
+            { pitch: 'E4', midi: 64, label: 'E4', color: '#3B82F6' },
+            { pitch: 'G4', midi: 67, label: 'G4', color: '#06B6D4' },
+            { pitch: 'Bb4', midi: 70, label: 'Bb4', color: '#D946EF' },
+            { pitch: 'C5', midi: 72, label: 'C5', color: '#F43F5E' },
+            { pitch: 'D#5', midi: 75, label: 'D#5', color: '#A855F7' }
+          ],
+          guitarDiagram: {
+            frets: ['x', 3, 2, 3, 4, 'x'],
+            baseFret: 1,
+            stringNotes: ['x', 'C', 'E', 'Bb', 'D#', 'x']
+          }
+        },
+        {
+          chordName: 'Fm9',
+          chordRoot: 'F',
+          chordAccidental: '',
+          chordExtension: 'm9',
+          artistHandle: '@ultravioletchorus',
+          durationBeats: 4,
+          voices: [
+            { pitch: 'F2', midi: 41, label: 'F2', color: '#4A154B' },
+            { pitch: 'C4', midi: 60, label: 'C4', color: '#3B82F6' },
+            { pitch: 'Ab4', midi: 68, label: 'Ab4', color: '#06B6D4' },
+            { pitch: 'C5', midi: 72, label: 'C5', color: '#D946EF' },
+            { pitch: 'Eb5', midi: 75, label: 'Eb5', color: '#F43F5E' },
+            { pitch: 'G5', midi: 79, label: 'G5', color: '#A855F7' }
+          ],
+          guitarDiagram: {
+            frets: [1, 3, 1, 1, 1, 3],
+            baseFret: 1,
+            barres: [{ fromString: 6, toString: 1, fret: 1 }],
+            stringNotes: ['F', 'C', 'Eb', 'Ab', 'C', 'G']
+          }
+        },
+        {
+          chordName: 'Ebm9',
+          chordRoot: 'E',
+          chordAccidental: 'b',
+          chordExtension: 'm9',
+          artistHandle: '@ultravioletchorus',
+          durationBeats: 2,
+          voices: [
+            { pitch: 'Eb2', midi: 39, label: 'Eb2', color: '#4A154B' },
+            { pitch: 'Bb3', midi: 58, label: 'Bb3', color: '#3B82F6' },
+            { pitch: 'Gb4', midi: 66, label: 'Gb4', color: '#06B6D4' },
+            { pitch: 'Bb4', midi: 70, label: 'Bb4', color: '#D946EF' },
+            { pitch: 'Db5', midi: 73, label: 'Db5', color: '#F43F5E' },
+            { pitch: 'F5', midi: 77, label: 'F5', color: '#A855F7' }
+          ],
+          guitarDiagram: {
+            frets: ['x', 6, 4, 6, 6, 'x'],
+            baseFret: 4,
+            barres: [{ fromString: 3, toString: 1, fret: 6 }],
+            stringNotes: ['x', 'Eb', 'Gb', 'Db', 'F', 'x']
+          }
+        },
+        {
+          chordName: 'Ab13',
+          chordRoot: 'A',
+          chordAccidental: 'b',
+          chordExtension: '13',
+          artistHandle: '@ultravioletchorus',
+          durationBeats: 2,
+          voices: [
+            { pitch: 'Ab2', midi: 44, label: 'Ab2', color: '#4A154B' },
+            { pitch: 'C4', midi: 60, label: 'C4', color: '#3B82F6' },
+            { pitch: 'Gb4', midi: 66, label: 'Gb4', color: '#06B6D4' },
+            { pitch: 'Bb4', midi: 70, label: 'Bb4', color: '#D946EF' },
+            { pitch: 'C5', midi: 72, label: 'C5', color: '#F43F5E' },
+            { pitch: 'F5', midi: 77, label: 'F5', color: '#A855F7' }
+          ],
+          guitarDiagram: {
+            frets: [4, 'x', 4, 5, 6, 'x'],
+            baseFret: 4,
+            stringNotes: ['Ab', 'x', 'Gb', 'C', 'F', 'x']
+          }
+        },
+        {
+          chordName: 'Dbmaj7(#11)',
+          chordRoot: 'D',
+          chordAccidental: 'b',
+          chordExtension: 'maj7(#11)',
+          artistHandle: '@ultravioletchorus',
+          durationBeats: 4,
+          voices: [
+            { pitch: 'Db3', midi: 49, label: 'Db3', color: '#4A154B' },
+            { pitch: 'F4', midi: 65, label: 'F4', color: '#3B82F6' },
+            { pitch: 'Ab4', midi: 68, label: 'Ab4', color: '#06B6D4' },
+            { pitch: 'C5', midi: 72, label: 'C5', color: '#D946EF' },
+            { pitch: 'Eb5', midi: 75, label: 'Eb5', color: '#F43F5E' },
+            { pitch: 'G5', midi: 79, label: 'G5', color: '#A855F7' }
+          ],
+          guitarDiagram: {
+            frets: ['x', 4, 5, 5, 6, 'x'],
+            baseFret: 4,
+            stringNotes: ['x', 'Db', 'G', 'C', 'F', 'Ab']
+          }
+        },
+        {
+          chordName: 'C7(b13)',
+          chordRoot: 'C',
+          chordAccidental: '',
+          chordExtension: '7(b13)',
+          artistHandle: '@ultravioletchorus',
+          durationBeats: 4,
+          voices: [
+            { pitch: 'C3', midi: 48, label: 'C3', color: '#4A154B' },
+            { pitch: 'E4', midi: 64, label: 'E4', color: '#3B82F6' },
+            { pitch: 'Ab4', midi: 68, label: 'Ab4', color: '#06B6D4' },
+            { pitch: 'Bb4', midi: 70, label: 'Bb4', color: '#D946EF' },
+            { pitch: 'C5', midi: 72, label: 'C5', color: '#F43F5E' },
+            { pitch: 'D5', midi: 74, label: 'D5', color: '#A855F7' }
+          ],
+          guitarDiagram: {
+            frets: [8, 'x', 8, 9, 9, 8],
+            baseFret: 8,
+            barres: [{ fromString: 6, toString: 1, fret: 8 }],
+            stringNotes: ['C', 'x', 'Bb', 'E', 'Ab', 'C']
+          }
+        }
+      ]
+    };
+
+    /**
+     * Loads a progression timeline and visual rendering options.
+     */
+    window.loadProgression = function(progressionData, options) {
+      const p = progressionData || DEFAULT_REFERENCE_PROGRESSION;
+      const opts = Object.assign({
+        instrument: 'guitar',
+        theme: 'pastel',
+        bpm: p.bpm || 60,
+        artistHandle: '@ultravioletchorus'
+      }, options || {});
+
+      const themeKey = opts.theme in THEMES ? opts.theme : 'pastel';
+      const themePreset = THEMES[themeKey];
+
+      let totalBeats = 0;
+      for (let i = 0; i < p.steps.length; i++) {
+        totalBeats += p.steps[i].durationBeats;
+      }
+      if (totalBeats <= 0) totalBeats = 24;
+
+      const totalDurationSeconds = (totalBeats / (opts.bpm || 60)) * 60;
+
+      // Assign theme palette colors to voices in steps
+      for (let s = 0; s < p.steps.length; s++) {
+        const step = p.steps[s];
+        for (let v = 0; v < step.voices.length; v++) {
+          const colorIdx = Math.min(v, themePreset.voicePalette.length - 1);
+          step.voices[v].color = themePreset.voicePalette[colorIdx];
+        }
+      }
+
+      window.__PIPELINE_STATE = {
+        progression: p,
+        options: opts,
+        currentBeat: 0,
+        totalBeats: totalBeats,
+        totalDurationSeconds: totalDurationSeconds,
+        themePreset: themePreset
+      };
+
+      // Draw initial frame
+      window.renderFrame(0);
+      return {
+        totalBeats: totalBeats,
+        totalDurationSeconds: totalDurationSeconds,
+        stepCount: p.steps.length
+      };
+    };
+
+    /**
+     * Resolves the active chord step and relative beat within step.
+     */
+    function resolveStepAtBeat(progression, totalBeats, beat) {
+      const normalizedBeat = ((beat % totalBeats) + totalBeats) % totalBeats;
+      let accumulated = 0;
+
+      for (let i = 0; i < progression.steps.length; i++) {
+        const step = progression.steps[i];
+        const nextAccumulated = accumulated + step.durationBeats;
+        if (normalizedBeat < nextAccumulated || i === progression.steps.length - 1) {
+          return {
+            step: step,
+            stepIndex: i,
+            stepStartBeat: accumulated,
+            beatWithinStep: normalizedBeat - accumulated
+          };
+        }
+        accumulated = nextAccumulated;
+      }
+
+      return {
+        step: progression.steps[0],
+        stepIndex: 0,
+        stepStartBeat: 0,
+        beatWithinStep: 0
+      };
+    }
+
+    /**
+     * Deterministic frame rendering function called at 60 FPS.
+     * Takes time in seconds and updates the canvas immediately.
+     */
+    window.renderFrame = function(timeSeconds) {
+      const state = window.__PIPELINE_STATE;
+      if (!state.progression) {
+        window.loadProgression(DEFAULT_REFERENCE_PROGRESSION, {});
+      }
+
+      const p = state.progression;
+      const theme = state.themePreset;
+      const bpm = state.options.bpm || p.bpm || 60;
+      const totalBeats = state.totalBeats;
+      const currentBeat = (timeSeconds * (bpm / 60)) % totalBeats;
+      state.currentBeat = currentBeat;
+
+      const stepRes = resolveStepAtBeat(p, totalBeats, currentBeat);
+      const currentStep = stepRes.step;
+
+      // 1. Draw Background Gradient
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, 1920);
+      bgGrad.addColorStop(0, theme.bgGradient[0]);
+      bgGrad.addColorStop(0.5, theme.bgGradient[1]);
+      bgGrad.addColorStop(1, theme.bgGradient[2]);
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, 1080, 1920);
+
+      // 2. Render Header Chord Typography (y: 120 to 340)
+      renderHeaderChord(ctx, currentStep, theme, state.options.artistHandle);
+
+      // 3. Render Voice-Leading Canvas Area (y: 380 to 1420)
+      renderVoiceLeadingCanvas(ctx, p, totalBeats, currentBeat, currentStep, theme);
+
+      // 4. Render Bottom Section (Guitar or Piano) (y: 1460 to 1880)
+      if (state.options.instrument === 'piano') {
+        renderKeyboardDiagram(ctx, currentStep, theme);
+      } else {
+        renderGuitarDiagram(ctx, currentStep, theme);
+      }
+
+      // Return base64 JPEG for pipe streaming
+      return canvas.toDataURL('image/jpeg', 0.95);
+    };
+
+    /**
+     * Deterministic seek to specific musical beat.
+     */
+    window.seekTo = function(beat) {
+      const state = window.__PIPELINE_STATE;
+      const bpm = state.options.bpm || 60;
+      const timeSeconds = (beat / bpm) * 60;
+      return window.renderFrame(timeSeconds);
+    };
+
+    /**
+     * Renders Header Chord Typography with large root, accidental, and extension.
+     */
+    function renderHeaderChord(ctx, step, theme, artistHandle) {
+      ctx.save();
+      const centerX = 540;
+      const baseY = 250;
+
+      // Extract parts
+      let root = step.chordRoot || '';
+      let accidental = step.chordAccidental || '';
+      let extension = step.chordExtension || '';
+
+      if (!root && step.chordName) {
+        const m = step.chordName.match(/^([A-G])([b#]?)(.*)$/);
+        if (m) {
+          root = m[1];
+          accidental = m[2];
+          extension = m[3];
+        } else {
+          root = step.chordName;
+        }
+      }
+
+      const glyphAccidental = accidental === 'b' ? '♭' : accidental === '#' ? '♯' : '';
+
+      // Compute horizontal alignment for hero lockup
+      ctx.font = '900 132px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      const rootWidth = ctx.measureText(root).width;
+
+      ctx.font = '700 48px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      const accWidth = glyphAccidental ? ctx.measureText(glyphAccidental).width + 4 : 0;
+
+      ctx.font = '600 52px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      const extWidth = extension ? ctx.measureText(extension).width + 8 : 0;
+
+      const totalHeroWidth = rootWidth + accWidth + extWidth;
+      const startX = centerX - totalHeroWidth / 2;
+
+      // Draw Root Note
+      ctx.fillStyle = theme.textColor;
+      ctx.textAlign = 'left';
+      ctx.font = '900 132px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.fillText(root, startX, baseY);
+
+      // Draw Superscript Accidental
+      if (glyphAccidental) {
+        ctx.font = '700 48px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillStyle = theme.accentColor;
+        ctx.fillText(glyphAccidental, startX + rootWidth + 2, baseY - 64);
+      }
+
+      // Draw Extension
+      if (extension) {
+        ctx.font = '600 52px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillStyle = theme.isDark ? '#E4E4E7' : theme.textColor;
+        ctx.fillText(extension, startX + rootWidth + accWidth + 6, baseY - 12);
+      }
+
+      // Subtitle attribution handle
+      ctx.font = '500 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.fillStyle = theme.textMutedColor;
+      ctx.textAlign = 'center';
+      ctx.fillText(artistHandle || step.artistHandle || '@ultravioletchorus', centerX, 315);
+
+      ctx.restore();
+    }
+
+    /**
+     * Renders Voice-Leading Canvas Area with horizontal grid, chord bars, splines, and playhead.
+     */
+    function renderVoiceLeadingCanvas(ctx, progression, totalBeats, currentBeat, currentStep, theme) {
+      const canvasY = 380;
+      const canvasHeight = 1040;
+      const playheadX = 1080 * 0.37; // 399.6px
+      const minMidi = 32; // E1/F1
+      const maxMidi = 84; // C6
+      const visibleBeats = 8.0;
+      const pxPerBeat = 1080 / visibleBeats; // 135px per beat
+
+      // 1. Faint horizontal pitch grid lines (semitones)
+      ctx.save();
+      ctx.strokeStyle = theme.gridLineColor;
+      ctx.lineWidth = 1.2;
+      for (let midi = minMidi; midi <= maxMidi; midi++) {
+        const normY = (midi - minMidi) / (maxMidi - minMidi);
+        const py = canvasY + (1 - normY) * canvasHeight;
+        ctx.beginPath();
+        ctx.moveTo(0, py);
+        ctx.lineTo(1080, py);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // 2. Bar line dividers at chord step boundaries
+      ctx.save();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = theme.barLineColor;
+
+      let accum = 0;
+      for (let i = 0; i < progression.steps.length; i++) {
+        const s = progression.steps[i];
+        const beatDiff = accum - currentBeat;
+        const bx = playheadX + beatDiff * pxPerBeat;
+
+        // Wrap around loop bounds for continuous visualizer
+        const wrappedBx = ((bx % (totalBeats * pxPerBeat)) + (totalBeats * pxPerBeat)) % (totalBeats * pxPerBeat);
+        const displayBx = (bx < -120) ? wrappedBx : bx;
+
+        if (displayBx >= -100 && displayBx <= 1180) {
+          ctx.beginPath();
+          ctx.moveTo(displayBx, canvasY);
+          ctx.lineTo(displayBx, canvasY + canvasHeight);
+          ctx.stroke();
+
+          // Chord name label above bar line
+          ctx.font = '600 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          ctx.fillStyle = theme.textMutedColor;
+          ctx.textAlign = 'left';
+          ctx.fillText(s.chordName, displayBx + 12, canvasY - 14);
+        }
+        accum += s.durationBeats;
+      }
+      ctx.restore();
+
+      // 3. Voice ribbons across the visible window
+      renderVoiceRibbons(ctx, progression, totalBeats, currentBeat, canvasY, canvasHeight, playheadX, pxPerBeat, minMidi, maxMidi, theme);
+
+      // 4. Playhead vertical line
+      ctx.save();
+      ctx.strokeStyle = theme.isDark ? 'rgba(255, 255, 255, 0.45)' : 'rgba(46, 16, 77, 0.35)';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(playheadX, canvasY);
+      ctx.lineTo(playheadX, canvasY + canvasHeight);
+      ctx.stroke();
+      ctx.restore();
+
+      // 5. Active voice glowing nodes and pitch labels on the playhead
+      const voices = currentStep.voices;
+      for (let v = 0; v < voices.length; v++) {
+        const voice = voices[v];
+        const normY = (voice.midi - minMidi) / (maxMidi - minMidi);
+        const vy = canvasY + (1 - normY) * canvasHeight;
+        const color = voice.color || theme.voicePalette[Math.min(v, theme.voicePalette.length - 1)];
+
+        ctx.save();
+        // Outer halo glow
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 24;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(playheadX, vy, 13, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Inner crisp white center
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(playheadX, vy, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Note label floating right of node
+        ctx.font = '700 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillStyle = color;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(voice.label || voice.pitch, playheadX + 24, vy);
+        ctx.restore();
+      }
+    }
+
+    /**
+     * Renders continuous smooth voice ribbon splines with past and future translucency.
+     */
+    function renderVoiceRibbons(ctx, progression, totalBeats, currentBeat, canvasY, canvasHeight, playheadX, pxPerBeat, minMidi, maxMidi, theme) {
+      const numVoices = 6;
+      const transitionBeats = 0.55;
+
+      // Extract chronological keyframes for each voice index across steps
+      for (let voiceIdx = 0; voiceIdx < numVoices; voiceIdx++) {
+        const color = theme.voicePalette[Math.min(voiceIdx, theme.voicePalette.length - 1)];
+
+        // Build continuous points from steps
+        let accumBeat = 0;
+        const points = [];
+
+        for (let s = 0; s < progression.steps.length; s++) {
+          const step = progression.steps[s];
+          const voice = step.voices[voiceIdx] || step.voices[step.voices.length - 1];
+          const midi = voice ? voice.midi : 60;
+          const normY = (midi - minMidi) / (maxMidi - minMidi);
+          const y = canvasY + (1 - normY) * canvasHeight;
+
+          points.push({
+            startBeat: accumBeat,
+            duration: step.durationBeats,
+            endBeat: accumBeat + step.durationBeats,
+            y: y,
+            midi: midi
+          });
+          accumBeat += step.durationBeats;
+        }
+
+        // Render past trail (left of playhead) and future preview (right of playhead)
+        // Two passes: preview (translucent), active (solid glowing)
+        renderSingleRibbonTrail(ctx, points, totalBeats, currentBeat, playheadX, pxPerBeat, color, transitionBeats, 'future', theme);
+        renderSingleRibbonTrail(ctx, points, totalBeats, currentBeat, playheadX, pxPerBeat, color, transitionBeats, 'past', theme);
+      }
+    }
+
+    /**
+     * Renders a single voice ribbon trail (either past trail or future preview).
+     */
+    function renderSingleRibbonTrail(ctx, points, totalBeats, currentBeat, playheadX, pxPerBeat, color, transitionBeats, mode, theme) {
+      ctx.save();
+
+      if (mode === 'past') {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 4.0;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = theme.isDark ? 16 : 8;
+        ctx.globalAlpha = 0.95;
+      } else {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2.4;
+        ctx.globalAlpha = theme.isDark ? 0.35 : 0.28;
+      }
+
+      ctx.beginPath();
+      let started = false;
+
+      // Render across multiple loops to ensure continuous ribbon flow
+      for (let loopOffset = -totalBeats; loopOffset <= totalBeats; loopOffset += totalBeats) {
+        for (let i = 0; i < points.length; i++) {
+          const pt = points[i];
+          const nextPt = points[(i + 1) % points.length];
+
+          const startBeat = pt.startBeat + loopOffset;
+          const endBeat = pt.endBeat + loopOffset;
+
+          const x1 = playheadX + (startBeat - currentBeat) * pxPerBeat;
+          const x2 = playheadX + (endBeat - transitionBeats - currentBeat) * pxPerBeat;
+          const x3 = playheadX + (endBeat - currentBeat) * pxPerBeat;
+          const xNext = playheadX + (endBeat + transitionBeats - currentBeat) * pxPerBeat;
+
+          // Segment 1: Steady pitch hold
+          if (!started) {
+            ctx.moveTo(x1, pt.y);
+            started = true;
+          } else {
+            ctx.lineTo(x1, pt.y);
+          }
+          ctx.lineTo(x2, pt.y);
+
+          // Segment 2: Smooth S-curve transition to next step
+          const nextY = nextPt.y;
+          const cx1 = (x2 + x3) / 2;
+          const cx2 = (x3 + xNext) / 2;
+          ctx.bezierCurveTo(cx1, pt.y, cx1, nextY, x3, nextY);
+        }
+      }
+
+      // Clip trail based on mode
+      ctx.save();
+      if (mode === 'past') {
+        // Only show left of playhead
+        ctx.beginPath();
+        ctx.rect(0, 0, playheadX + 2, 1920);
+        ctx.clip();
+      } else {
+        // Only show right of playhead
+        ctx.beginPath();
+        ctx.rect(playheadX, 0, 1080 - playheadX, 1920);
+        ctx.clip();
+      }
+
+      ctx.stroke();
+      ctx.restore();
+      ctx.restore();
+    }
+
+    /**
+     * Renders Guitar Chord Box Diagram with nut, strings, frets, barre, and finger dots.
+     */
+    function renderGuitarDiagram(ctx, step, theme) {
+      const bottomY = 1500;
+      const mainColor = theme.textColor;
+      const mutedColor = theme.textMutedColor;
+      const gridLineColor = theme.isDark ? 'rgba(255, 255, 255, 0.22)' : 'rgba(46, 16, 77, 0.35)';
+
+      // Label
+      ctx.save();
+      ctx.font = '700 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.fillStyle = mutedColor;
+      ctx.textAlign = 'center';
+      ctx.fillText('GUITAR', 270, bottomY);
+
+      // Fretboard layout coordinates
+      const gx = 130;
+      const gy = bottomY + 36;
+      const gw = 280;
+      const gh = 230;
+      const numStrings = 6;
+      const numFrets = 5;
+      const stringSpacing = gw / (numStrings - 1); // 56px
+      const fretSpacing = gh / numFrets; // 46px
+
+      const voicing = step.guitarDiagram || { frets: ['x', 'x', 'x', 'x', 'x', 'x'], stringNotes: [] };
+      const baseFret = voicing.baseFret || 1;
+      const isNut = baseFret <= 1;
+
+      // Base fret indicator on left if higher up the neck
+      if (!isNut) {
+        ctx.font = '700 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillStyle = mutedColor;
+        ctx.textAlign = 'right';
+        ctx.fillText(baseFret + 'fr', gx - 16, gy + fretSpacing * 0.75);
+      }
+
+      // Horizontal frets
+      ctx.lineWidth = 2.0;
+      ctx.strokeStyle = gridLineColor;
+      for (let f = 0; f <= numFrets; f++) {
+        const fy = gy + f * fretSpacing;
+        ctx.beginPath();
+        ctx.moveTo(gx, fy);
+        ctx.lineTo(gx + gw, fy);
+        ctx.stroke();
+      }
+
+      // Nut bar (thick top line)
+      if (isNut) {
+        ctx.lineWidth = 8.0;
+        ctx.strokeStyle = mainColor;
+        ctx.beginPath();
+        ctx.moveTo(gx - 2, gy);
+        ctx.lineTo(gx + gw + 2, gy);
+        ctx.stroke();
+      }
+
+      // Vertical string lines
+      ctx.lineWidth = 2.0;
+      ctx.strokeStyle = gridLineColor;
+      for (let s = 0; s < numStrings; s++) {
+        const sx = gx + s * stringSpacing;
+        ctx.beginPath();
+        ctx.moveTo(sx, gy);
+        ctx.lineTo(sx, gy + gh);
+        ctx.stroke();
+      }
+
+      // Barre indicator pill
+      const barres = voicing.barres || [];
+      for (let b = 0; b < barres.length; b++) {
+        const barre = barres[b];
+        const relFret = barre.fret - baseFret + 1;
+        if (relFret >= 1 && relFret <= numFrets) {
+          const fromIdx = 6 - barre.fromString;
+          const toIdx = 6 - barre.toString;
+          const bx1 = gx + Math.min(fromIdx, toIdx) * stringSpacing;
+          const bx2 = gx + Math.max(fromIdx, toIdx) * stringSpacing;
+          const by = gy + (relFret - 0.5) * fretSpacing;
+          const pillHeight = 22;
+
+          ctx.fillStyle = mainColor;
+          ctx.beginPath();
+          ctx.roundRect(bx1 - 12, by - pillHeight / 2, (bx2 - bx1) + 24, pillHeight, pillHeight / 2);
+          ctx.fill();
+        }
+      }
+
+      // Top markers ('x' for mute, 'o' for open) and finger dots
+      for (let s = 0; s < numStrings; s++) {
+        const sx = gx + s * stringSpacing;
+        const fret = voicing.frets ? voicing.frets[s] : 'x';
+
+        if (fret === 'x') {
+          // X marker
+          ctx.strokeStyle = mutedColor;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(sx - 7, gy - 18 - 7);
+          ctx.lineTo(sx + 7, gy - 18 + 7);
+          ctx.moveTo(sx + 7, gy - 18 - 7);
+          ctx.lineTo(sx - 7, gy - 18 + 7);
+          ctx.stroke();
+        } else if (fret === 0) {
+          // Open circle marker
+          ctx.strokeStyle = mainColor;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(sx, gy - 18, 7, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (typeof fret === 'number' && fret > 0) {
+          // Finger dot
+          const relFret = fret - baseFret + 1;
+          if (relFret >= 1 && relFret <= numFrets) {
+            const dy = gy + (relFret - 0.5) * fretSpacing;
+            ctx.fillStyle = mainColor;
+            ctx.beginPath();
+            ctx.arc(sx, dy, 13, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        // Bottom note name label
+        if (voicing.stringNotes && voicing.stringNotes[s] && voicing.stringNotes[s] !== 'x') {
+          ctx.font = '600 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          ctx.fillStyle = mutedColor;
+          ctx.textAlign = 'center';
+          ctx.fillText(voicing.stringNotes[s], sx, gy + gh + 28);
+        }
+      }
+
+      // Swan Glide Watermark Branding on the right
+      renderWatermarkBranding(ctx, 720, bottomY + 110, theme);
+
+      ctx.restore();
+    }
+
+    /**
+     * Renders Illuminated Piano Keyboard Diagram with active voice notes illuminated.
+     */
+    function renderKeyboardDiagram(ctx, step, theme) {
+      const bottomY = 1480;
+      const mainColor = theme.textColor;
+      const mutedColor = theme.textMutedColor;
+
+      ctx.save();
+      // Label
+      ctx.font = '700 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.fillStyle = mutedColor;
+      ctx.textAlign = 'center';
+      ctx.fillText('PIANO', 540, bottomY);
+
+      // Keyboard geometry: C2 (36) to A5 (81) - 27 white keys
+      const startMidi = 36;
+      const endMidi = 81;
+      const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+      const blackPitchClasses = [1, 3, 6, 8, 10];
+
+      // Tally white keys
+      let totalWhiteKeys = 0;
+      for (let m = startMidi; m <= endMidi; m++) {
+        if (!blackPitchClasses.includes(m % 12)) totalWhiteKeys++;
+      }
+
+      const kw = 920;
+      const whiteWidth = kw / totalWhiteKeys; // ~34px
+      const whiteHeight = 175;
+      const blackWidth = whiteWidth * 0.62;
+      const blackHeight = whiteHeight * 0.62;
+      const kx = (1080 - kw) / 2;
+      const ky = bottomY + 28;
+
+      // Voice lookup by MIDI
+      const activeVoicesByMidi = new Map();
+      for (let v = 0; v < step.voices.length; v++) {
+        activeVoicesByMidi.set(step.voices[v].midi, step.voices[v]);
+      }
+
+      // Pass 1: Render White Keys
+      let whiteIdx = 0;
+      for (let m = startMidi; m <= endMidi; m++) {
+        const pc = m % 12;
+        if (blackPitchClasses.includes(pc)) continue;
+
+        const wx = kx + whiteIdx * whiteWidth;
+        const voice = activeVoicesByMidi.get(m);
+
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = theme.keyboardWhiteStroke;
+
+        if (voice) {
+          ctx.fillStyle = voice.color;
+          ctx.shadowColor = voice.color;
+          ctx.shadowBlur = 18;
+        } else {
+          ctx.fillStyle = theme.keyboardWhite;
+          ctx.shadowBlur = 0;
+        }
+
+        ctx.beginPath();
+        ctx.roundRect(wx, ky, whiteWidth - 1, whiteHeight, [0, 0, 5, 5]);
+        ctx.fill();
+        ctx.stroke();
+
+        // White key voice label at bottom
+        if (voice) {
+          ctx.shadowBlur = 0;
+          ctx.font = '700 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          ctx.fillStyle = '#FFFFFF';
+          ctx.textAlign = 'center';
+          ctx.fillText(voice.label, wx + whiteWidth / 2 - 0.5, ky + whiteHeight - 14);
+        }
+
+        whiteIdx++;
+      }
+
+      // Pass 2: Render Black Keys
+      whiteIdx = 0;
+      for (let m = startMidi; m <= endMidi; m++) {
+        const pc = m % 12;
+        if (!blackPitchClasses.includes(pc)) {
+          whiteIdx++;
+          continue;
+        }
+
+        const wxPreceding = kx + (whiteIdx - 1) * whiteWidth;
+        const bx = wxPreceding + whiteWidth - blackWidth / 2;
+        const voice = activeVoicesByMidi.get(m);
+
+        ctx.shadowBlur = 0;
+        ctx.lineWidth = 1.0;
+        ctx.strokeStyle = theme.keyboardBlackStroke;
+
+        if (voice) {
+          ctx.fillStyle = voice.color;
+          ctx.shadowColor = voice.color;
+          ctx.shadowBlur = 20;
+        } else {
+          ctx.fillStyle = theme.keyboardBlack;
+          ctx.shadowBlur = 0;
+        }
+
+        ctx.beginPath();
+        ctx.roundRect(bx, ky, blackWidth, blackHeight, [0, 0, 4, 4]);
+        ctx.fill();
+        ctx.stroke();
+
+        // Black key voice badge
+        if (voice) {
+          ctx.shadowBlur = 0;
+          ctx.font = '700 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          ctx.fillStyle = '#FFFFFF';
+          ctx.textAlign = 'center';
+          ctx.fillText(voice.label, bx + blackWidth / 2, ky + blackHeight - 12);
+        }
+      }
+
+      // Swan Glide Watermark below keyboard
+      renderWatermarkBranding(ctx, 540, ky + whiteHeight + 52, theme, true);
+
+      ctx.restore();
+    }
+
+    /**
+     * Renders Swan Glide Watermark branding stamp.
+     */
+    function renderWatermarkBranding(ctx, x, y, theme, centered) {
+      ctx.save();
+      ctx.textAlign = centered ? 'center' : 'center';
+
+      // Brand Title
+      ctx.font = '900 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.letterSpacing = '3px';
+      ctx.fillStyle = theme.isDark ? '#F4F4F5' : '#2E104D';
+      ctx.fillText('SWAN GLIDE', x, y);
+
+      // Subtitle
+      ctx.font = '600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.letterSpacing = '1px';
+      ctx.fillStyle = theme.textMutedColor;
+      ctx.fillText('NEO-SOUL VOICE LEADING', x, y + 24);
+
+      ctx.restore();
+    }
+
+    /**
+     * Offline Audio Synthesizer via Chromium OfflineAudioContext.
+     * Renders 48kHz lossless stereo WAV buffer for precise audio muxing.
+     */
+    window.renderAudio = async function(sampleRate) {
+      const sr = sampleRate || 48000;
+      const state = window.__PIPELINE_STATE;
+      const progression = state.progression || DEFAULT_REFERENCE_PROGRESSION;
+      const bpm = state.options.bpm || progression.bpm || 60;
+      const totalBeats = state.totalBeats;
+      const durationSeconds = (totalBeats / bpm) * 60;
+
+      const offlineCtx = new OfflineAudioContext(2, Math.ceil(sr * durationSeconds), sr);
+
+      // Master output filter & compression
+      const masterFilter = offlineCtx.createBiquadFilter();
+      masterFilter.type = 'lowpass';
+      masterFilter.frequency.value = 2400;
+      masterFilter.Q.value = 1.0;
+
+      const masterGain = offlineCtx.createGain();
+      masterGain.gain.value = 0.85;
+
+      masterFilter.connect(masterGain);
+      masterGain.connect(offlineCtx.destination);
+
+      // Synthesize each chord step
+      let accumBeat = 0;
+      for (let s = 0; s < progression.steps.length; s++) {
+        const step = progression.steps[s];
+        const stepStartSec = (accumBeat / bpm) * 60;
+        const stepDurSec = (step.durationBeats / bpm) * 60;
+
+        for (let v = 0; v < step.voices.length; v++) {
+          const voice = step.voices[v];
+          const midi = voice.midi;
+          const freq = 440 * Math.pow(2, (midi - 69) / 12);
+
+          // Warm Rhodes electric piano sound: triangle body + slight sine overtone
+          const osc1 = offlineCtx.createOscillator();
+          osc1.type = 'triangle';
+          osc1.frequency.setValueAtTime(freq, stepStartSec);
+
+          const osc2 = offlineCtx.createOscillator();
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(freq * 2, stepStartSec);
+
+          const voiceGain = offlineCtx.createGain();
+          const voiceVolume = v === 0 ? 0.35 : 0.16; // Bass slightly punchier
+
+          // Natural electric piano ADSR envelope
+          voiceGain.gain.setValueAtTime(0.0001, stepStartSec);
+          voiceGain.gain.exponentialRampToValueAtTime(voiceVolume, stepStartSec + 0.02);
+          voiceGain.gain.exponentialRampToValueAtTime(voiceVolume * 0.45, stepStartSec + 0.8);
+          voiceGain.gain.exponentialRampToValueAtTime(0.0001, stepStartSec + stepDurSec - 0.02);
+
+          osc1.connect(voiceGain);
+          osc2.connect(voiceGain);
+          voiceGain.connect(masterFilter);
+
+          osc1.start(stepStartSec);
+          osc1.stop(stepStartSec + stepDurSec);
+          osc2.start(stepStartSec);
+          osc2.stop(stepStartSec + stepDurSec);
+        }
+
+        accumBeat += step.durationBeats;
+      }
+
+      const renderedBuffer = await offlineCtx.startRendering();
+
+      // Encode rendered AudioBuffer to 48kHz WAV
+      const numChannels = 2;
+      const length = renderedBuffer.length;
+      const buffer = new ArrayBuffer(44 + length * numChannels * 2);
+      const view = new DataView(buffer);
+
+      function writeString(offset, str) {
+        for (let i = 0; i < str.length; i++) {
+          view.setUint8(offset + i, str.charCodeAt(i));
+        }
+      }
+
+      writeString(0, 'RIFF');
+      view.setUint32(4, 36 + length * numChannels * 2, true);
+      writeString(8, 'WAVE');
+      writeString(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true); // PCM format
+      view.setUint16(22, numChannels, true);
+      view.setUint32(24, sr, true);
+      view.setUint32(28, sr * numChannels * 2, true);
+      view.setUint16(32, numChannels * 2, true);
+      view.setUint16(34, 16, true); // 16-bit
+      writeString(36, 'data');
+      view.setUint32(40, length * numChannels * 2, true);
+
+      const ch0 = renderedBuffer.getChannelData(0);
+      const ch1 = renderedBuffer.getChannelData(1);
+      let offset = 44;
+      for (let i = 0; i < length; i++) {
+        const s0 = Math.max(-1, Math.min(1, ch0[i]));
+        const s1 = Math.max(-1, Math.min(1, ch1[i]));
+        view.setInt16(offset, s0 < 0 ? s0 * 0x8000 : s0 * 0x7FFF, true);
+        view.setInt16(offset + 2, s1 < 0 ? s1 * 0x8000 : s1 * 0x7FFF, true);
+        offset += 4;
+      }
+
+      // Convert buffer to base64
+      const bytes = new Uint8Array(buffer);
+      let binary = '';
+      const chunk = 8192;
+      for (let i = 0; i < bytes.length; i += chunk) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+      }
+      return btoa(binary);
+    };
+
+    // Initialize with default state
+    window.loadProgression(DEFAULT_REFERENCE_PROGRESSION, {});
+  </script>
+</body>
+</html>

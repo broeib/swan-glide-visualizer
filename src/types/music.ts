@@ -97,6 +97,14 @@ export interface ProgressionTimeline {
   getTotalDurationSeconds: () => number;
   /** Resolves the active chord step and relative beat for any given timeline beat. */
   getStepAtBeat: (beat: number) => StepBeatResolution;
+  /** Optional harmonic generation metadata. */
+  metadata?: {
+    mood: string;
+    key: string;
+    description: string;
+    chordNames: string[];
+    [key: string]: unknown;
+  };
 }
 
 /**

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import clsx from 'clsx';
 import { ChordStep } from '../types/music';
+import { getThemePreset, ThemePreset } from '../engine/themes/themePresets';
 
 /**
  * Props for the HeaderChordDisplay component.
@@ -9,7 +10,7 @@ export interface HeaderChordDisplayProps {
   currentStep: ChordStep;
   stepIndex: number;
   totalSteps: number;
-  theme?: 'pastel' | 'dark';
+  theme?: string | ThemePreset;
   className?: string;
 }
 
@@ -58,7 +59,12 @@ export const HeaderChordDisplay: React.FC<HeaderChordDisplayProps> = ({
   className,
 }) => {
   const { root, accidental, extension } = parseChordDisplay(currentStep);
-  const isDark = theme === 'dark';
+  const preset: ThemePreset = useMemo(() => {
+    if (typeof theme === 'string') {
+      return getThemePreset(theme);
+    }
+    return theme;
+  }, [theme]);
 
   return (
     <header
@@ -71,10 +77,8 @@ export const HeaderChordDisplay: React.FC<HeaderChordDisplayProps> = ({
       <div className="flex items-start justify-center leading-none">
         {/* Large Root Letter */}
         <span
-          className={clsx(
-            'text-7xl sm:text-8xl font-black tracking-tight transition-colors duration-200',
-            isDark ? 'text-white' : 'text-[#2E104D]'
-          )}
+          className="text-7xl sm:text-8xl font-black tracking-tight transition-colors duration-200"
+          style={{ color: preset.textColor }}
         >
           {root}
         </span>
@@ -82,10 +86,8 @@ export const HeaderChordDisplay: React.FC<HeaderChordDisplayProps> = ({
         {/* Superscript Accidental (b or #) */}
         {accidental && (
           <sup
-            className={clsx(
-              'text-3xl sm:text-4xl font-bold -top-4 sm:-top-5 ml-0.5 transition-colors duration-200',
-              isDark ? 'text-amber-200' : 'text-[#2E104D]'
-            )}
+            className="text-3xl sm:text-4xl font-bold -top-4 sm:-top-5 ml-0.5 transition-colors duration-200"
+            style={{ color: preset.accentColor }}
           >
             {accidental === 'b' ? '♭' : '♯'}
           </sup>
@@ -94,10 +96,8 @@ export const HeaderChordDisplay: React.FC<HeaderChordDisplayProps> = ({
         {/* Chord Extension / Quality */}
         {extension && (
           <span
-            className={clsx(
-              'text-4xl sm:text-5xl font-semibold tracking-tight self-end mb-1 sm:mb-2 ml-1 transition-colors duration-200',
-              isDark ? 'text-zinc-200' : 'text-[#2E104D]'
-            )}
+            className="text-4xl sm:text-5xl font-semibold tracking-tight self-end mb-1 sm:mb-2 ml-1 transition-colors duration-200"
+            style={{ color: preset.textColor }}
           >
             {extension}
           </span>
@@ -106,10 +106,8 @@ export const HeaderChordDisplay: React.FC<HeaderChordDisplayProps> = ({
 
       {/* Subtitle Artist Attribution Handle */}
       <div
-        className={clsx(
-          'mt-2 text-sm sm:text-base font-medium tracking-wide transition-colors duration-200',
-          isDark ? 'text-zinc-400' : 'text-[#2E104D]/70'
-        )}
+        className="mt-2 text-sm sm:text-base font-medium tracking-wide transition-colors duration-200"
+        style={{ color: preset.textMutedColor }}
       >
         {currentStep.artistHandle || '@ultravioletchorus'}
       </div>

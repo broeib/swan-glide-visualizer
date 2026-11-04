@@ -6,15 +6,21 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "verify:audio": "tsx src/engine/audio/__tests__/verifyOfflineAudio.ts",
+    "pipeline:generate": "node scripts/run-pipeline.js",
+    "pipeline:enable": "bash scripts/pipeline-enable.sh",
+    "pipeline:disable": "bash scripts/pipeline-disable.sh"
   },
   "dependencies": {
     "clsx": "^2.1.1",
     "lucide-react": "^1.16.0",
+    "puppeteer": "^22.15.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwind-merge": "^3.4.0",
-    "tone": "^15.1.22"
+    "tone": "^15.1.22",
+    "web-audio-engine": "^0.13.4"
   },
   "devDependencies": {
     "@types/react": "^18.3.18",
@@ -23,6 +29,7 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.23.15",
     "typescript": "^5.7.2",
     "vite": "^6.0.7"
   }

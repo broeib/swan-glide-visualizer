@@ -1,11 +1,13 @@
 import React, {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
 import clsx from 'clsx';
-import { NEON_PALETTE, ProgressionTimeline, VOICE_PALETTE } from '../types/music';
+import { ProgressionTimeline } from '../types/music';
+import { getThemePreset, ThemePreset } from '../engine/themes/themePresets';
 import {
   DEFAULT_TRANSITION_BEATS,
   DEFAULT_VISIBLE_BEATS,
@@ -28,8 +30,8 @@ export interface VoiceLeadingCanvasProps {
   progression: ProgressionTimeline;
   /** Normalized playback progress between 0.0 and 1.0. */
   progress: number;
-  /** Visual theme ('pastel' or 'dark'). */
-  theme?: 'pastel' | 'dark';
+  /** Visual theme identifier or ThemePreset. */
+  theme?: string | ThemePreset;
   /** Optional container class name. */
   className?: string;
   /** Whether interactive seeking and scrubbing are enabled (default true). */
@@ -87,7 +89,14 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafIdRef = useRef<number | null>(null);
 
-  const isDark = theme === 'dark';
+  const themePreset: ThemePreset = useMemo(() => {
+    if (typeof theme === 'string') {
+      return getThemePreset(theme);
+    }
+    return theme;
+  }, [theme]);
+
+  const isDark = themePreset.isDark;
 
   const [dimensions, setDimensions] = useState<{ width: number; height: number }>({
     width: 0,
@@ -188,9 +197,7 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
     const playheadX = getPlayheadX(width, playheadRatio);
 
     // 1. Subtle horizontal semitone grid lines
-    const gridColor = isDark
-      ? 'rgba(255, 255, 255, 0.04)'
-      : 'rgba(46, 16, 77, 0.04)';
+    const gridColor = themePreset.gridLineColor;
 
     ctx.save();
     ctx.strokeStyle = gridColor;
@@ -212,12 +219,10 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
       const minCycle = Math.floor((beatStart - 4) / totalBeats);
       const maxCycle = Math.floor((beatEnd + 4) / totalBeats);
 
-      const barLineColor = isDark
-        ? 'rgba(255, 255, 255, 0.16)'
-        : 'rgba(46, 16, 77, 0.18)';
+      const barLineColor = themePreset.barLineColor;
       const chordLabelColor = isDark
-        ? 'rgba(255, 255, 255, 0.65)'
-        : 'rgba(46, 16, 77, 0.55)';
+        ? 'rgba(255, 255, 255, 0.75)'
+        : themePreset.textColor;
 
       for (let cycle = minCycle; cycle <= maxCycle; cycle++) {
         let stepStartAccumulator = cycle * totalBeats;
@@ -266,7 +271,7 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
       6,
     );
 
-    const palette = isDark ? NEON_PALETTE : VOICE_PALETTE;
+    const palette = themePreset.voicePalette;
 
     for (let v = 0; v < maxVoices; v++) {
       const segments = getVoiceRibbonSegments(
@@ -363,12 +368,10 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
     }
 
     // 4. Render vertical playhead line
-    const playheadColor = isDark
-      ? 'rgba(255, 255, 255, 0.4)'
-      : 'rgba(46, 16, 77, 0.28)';
-
     ctx.save();
-    ctx.strokeStyle = playheadColor;
+    ctx.strokeStyle = themePreset.playheadColor;
+    ctx.shadowColor = themePreset.playheadGlowColor;
+    ctx.shadowBlur = themePreset.playheadGlowBlur;
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(playheadX, 0);
@@ -450,6 +453,7 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
     playheadRatio,
     progress,
     progression,
+    themePreset,
     visibleBeats,
   ]);
 
