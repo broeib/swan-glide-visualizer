@@ -250,7 +250,8 @@ Visualizer: Swan Glide × @ultraviolet_chorus 🕊️✨
 
           <VideoExporter
             progression={currentProgression}
-            theme={isDark ? 'dark' : 'pastel'}
+            theme={themePreset}
+            instrument={instrumentMode}
             audioElement={audioElement}
           />
         </div>

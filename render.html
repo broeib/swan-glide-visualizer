@@ -349,6 +349,71 @@
     };
 
     /**
+     * Resolves the interpolated pitch and metadata for a voice layer at any musical beat.
+     * Uses cubic Hermite smoothstep S-curve for silky-smooth note glides.
+     */
+    function cubicHermite(p0, p1, t) {
+      const clampedT = Math.max(0, Math.min(1, t));
+      const t2 = clampedT * clampedT;
+      const t3 = t2 * clampedT;
+      const h00 = 2 * t3 - 3 * t2 + 1;
+      const h01 = -2 * t3 + 3 * t2;
+      return h00 * p0 + h01 * p1;
+    }
+
+    function getVoiceStateAtBeat(progression, voiceIndex, beat, transitionBeats = 0.55) {
+      const totalBeats = progression.steps.reduce((acc, s) => acc + s.durationBeats, 0);
+      const numSteps = progression.steps.length;
+      if (totalBeats <= 0 || numSteps === 0) return { midi: 60, label: 'C4', color: '#A855F7' };
+
+      const normalizedBeat = ((beat % totalBeats) + totalBeats) % totalBeats;
+      let accumulated = 0;
+      let currentStepIndex = 0;
+      let beatWithinStep = 0;
+
+      for (let i = 0; i < numSteps; i++) {
+        const step = progression.steps[i];
+        const stepEnd = accumulated + step.durationBeats;
+        if (normalizedBeat < stepEnd || i === numSteps - 1) {
+          currentStepIndex = i;
+          beatWithinStep = normalizedBeat - accumulated;
+          break;
+        }
+        accumulated = stepEnd;
+      }
+
+      const currentStep = progression.steps[currentStepIndex];
+      const nextStepIndex = (currentStepIndex + 1) % numSteps;
+      const nextStep = progression.steps[nextStepIndex];
+
+      const fromNote = (currentStep.voices && currentStep.voices[voiceIndex]) || { midi: 60, label: 'C4', color: '#A855F7' };
+      const toNote = (nextStep.voices && nextStep.voices[voiceIndex]) || fromNote;
+
+      const duration = currentStep.durationBeats || 4;
+      const effectiveTransitionBeats = Math.max(0.01, Math.min(transitionBeats, duration * 0.5));
+      const flatDuration = duration - effectiveTransitionBeats;
+
+      if (beatWithinStep < flatDuration) {
+        return {
+          midi: fromNote.midi,
+          label: fromNote.label || fromNote.pitch,
+          color: fromNote.color
+        };
+      }
+
+      const transitionOffset = beatWithinStep - flatDuration;
+      const t = Math.max(0, Math.min(1, transitionOffset / effectiveTransitionBeats));
+      const interpolatedMidi = cubicHermite(fromNote.midi, toNote.midi, t);
+      const activeNote = t < 0.5 ? fromNote : toNote;
+
+      return {
+        midi: interpolatedMidi,
+        label: activeNote.label || activeNote.pitch,
+        color: fromNote.color
+      };
+    }
+
+    /**
      * Resolves the active chord step and relative beat within step.
      */
     function resolveStepAtBeat(progression, totalBeats, beat) {
@@ -570,36 +635,59 @@
       ctx.stroke();
       ctx.restore();
 
-      // 5. Active voice glowing nodes and pitch labels on the playhead
-      const voices = currentStep.voices;
-      for (let v = 0; v < voices.length; v++) {
-        const voice = voices[v];
-        const normY = (voice.midi - minMidi) / (maxMidi - minMidi);
+      // 5. Active voice glowing nodes and pitch labels gliding on the playhead
+      const maxVoices = Math.max(currentStep.voices.length, 6);
+      for (let v = 0; v < maxVoices; v++) {
+        const vState = getVoiceStateAtBeat(progression, v, currentBeat, 0.55);
+        const normY = (vState.midi - minMidi) / (maxMidi - minMidi);
         const vy = canvasY + (1 - normY) * canvasHeight;
-        const color = voice.color || theme.voicePalette[Math.min(v, theme.voicePalette.length - 1)];
+        const color = vState.color || theme.voicePalette[Math.min(v, theme.voicePalette.length - 1)];
 
         ctx.save();
         // Outer halo glow
         ctx.shadowColor = color;
-        ctx.shadowBlur = 24;
+        ctx.shadowBlur = theme.isDark ? 22 : 14;
         ctx.fillStyle = color;
         ctx.beginPath();
-        ctx.arc(playheadX, vy, 13, 0, Math.PI * 2);
+        ctx.arc(playheadX, vy, 11, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Soft semi-transparent outer ring
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+        ctx.beginPath();
+        ctx.arc(playheadX, vy, 15, 0, Math.PI * 2);
         ctx.fill();
 
         // Inner crisp white center
         ctx.shadowBlur = 0;
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.arc(playheadX, vy, 5, 0, Math.PI * 2);
+        ctx.arc(playheadX, vy, 4.5, 0, Math.PI * 2);
         ctx.fill();
+        ctx.restore();
 
-        // Note label floating right of node
-        ctx.font = '700 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        // Floating pill capsule for pitch label
+        const formattedLabel = (vState.label || '').replace('b', '♭').replace('#', '♯');
+        ctx.save();
+        ctx.font = '700 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        const textWidth = ctx.measureText(formattedLabel).width;
+        const pillW = Math.max(textWidth + 24, 68);
+        const pillH = 34;
+        const pillX = playheadX + 22;
+        const pillY = vy - pillH / 2;
+
+        ctx.fillStyle = theme.isDark ? 'rgba(15, 12, 24, 0.90)' : 'rgba(255, 255, 255, 0.94)';
+        ctx.strokeStyle = theme.isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(46, 16, 77, 0.12)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.roundRect(pillX, pillY, pillW, pillH, pillH / 2);
+        ctx.fill();
+        ctx.stroke();
+
         ctx.fillStyle = color;
-        ctx.textAlign = 'left';
+        ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(voice.label || voice.pitch, playheadX + 24, vy);
+        ctx.fillText(formattedLabel, pillX + pillW / 2, vy);
         ctx.restore();
       }
     }
@@ -649,6 +737,17 @@
     function renderSingleRibbonTrail(ctx, points, totalBeats, currentBeat, playheadX, pxPerBeat, color, transitionBeats, mode, theme) {
       ctx.save();
 
+      // Clip trail based on mode FIRST
+      ctx.beginPath();
+      if (mode === 'past') {
+        // Only show left of playhead
+        ctx.rect(0, 0, playheadX + 2, 1920);
+      } else {
+        // Only show right of playhead
+        ctx.rect(playheadX, 0, 1080 - playheadX, 1920);
+      }
+      ctx.clip();
+
       if (mode === 'past') {
         ctx.strokeStyle = color;
         ctx.lineWidth = 4.0;
@@ -665,7 +764,7 @@
       let started = false;
 
       // Render across multiple loops to ensure continuous ribbon flow
-      for (let loopOffset = -totalBeats; loopOffset <= totalBeats; loopOffset += totalBeats) {
+      for (let loopOffset = -totalBeats * 2; loopOffset <= totalBeats * 2; loopOffset += totalBeats) {
         for (let i = 0; i < points.length; i++) {
           const pt = points[i];
           const nextPt = points[(i + 1) % points.length];
@@ -676,7 +775,6 @@
           const x1 = playheadX + (startBeat - currentBeat) * pxPerBeat;
           const x2 = playheadX + (endBeat - transitionBeats - currentBeat) * pxPerBeat;
           const x3 = playheadX + (endBeat - currentBeat) * pxPerBeat;
-          const xNext = playheadX + (endBeat + transitionBeats - currentBeat) * pxPerBeat;
 
           // Segment 1: Steady pitch hold
           if (!started) {
@@ -690,27 +788,23 @@
           // Segment 2: Smooth S-curve transition to next step
           const nextY = nextPt.y;
           const cx1 = (x2 + x3) / 2;
-          const cx2 = (x3 + xNext) / 2;
           ctx.bezierCurveTo(cx1, pt.y, cx1, nextY, x3, nextY);
         }
       }
 
-      // Clip trail based on mode
-      ctx.save();
+      ctx.stroke();
+
+      // Subtle specular white center sheen for active past trail
       if (mode === 'past') {
-        // Only show left of playhead
-        ctx.beginPath();
-        ctx.rect(0, 0, playheadX + 2, 1920);
-        ctx.clip();
-      } else {
-        // Only show right of playhead
-        ctx.beginPath();
-        ctx.rect(playheadX, 0, 1080 - playheadX, 1920);
-        ctx.clip();
+        ctx.save();
+        ctx.lineWidth = 1.0;
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.globalAlpha = theme.isDark ? 0.45 : 0.60;
+        ctx.shadowBlur = 0;
+        ctx.stroke();
+        ctx.restore();
       }
 
-      ctx.stroke();
-      ctx.restore();
       ctx.restore();
     }
 

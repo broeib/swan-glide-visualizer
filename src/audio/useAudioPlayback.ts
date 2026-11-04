@@ -156,7 +156,11 @@ export function useAudioPlayback(
           audio.currentTime = 0;
         }
 
-        const normalizedProgress = loopTime / LOOP_DURATION_SECONDS;
+        // In studio audio reference mode, advance the playhead slightly (~0.40s)
+        // to match the live rubato chord strikes in the recording
+        const visualSyncOffset = audioMode === 'studio' ? 0.40 : 0.0;
+        const visualTime = (loopTime + visualSyncOffset) % LOOP_DURATION_SECONDS;
+        const normalizedProgress = visualTime / LOOP_DURATION_SECONDS;
         const totalBeats = timeline.getTotalBeats();
         const currentBeat = normalizedProgress * totalBeats;
         const resolution = timeline.getStepAtBeat(currentBeat);

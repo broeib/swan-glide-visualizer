@@ -342,21 +342,17 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
         progression.steps[0]?.voices[v]?.color ??
         '#A855F7';
 
-      // Pass 1: Render future preview (right of playhead) in softer translucent stroke
-      ctx.save();
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.lineWidth = 2.4;
-      ctx.strokeStyle = voiceColor;
-      ctx.globalAlpha = isDark ? 0.40 : 0.35;
-
-      ctx.beginPath();
-      let firstFuture = true;
-      for (const seg of segments) {
-        if (seg.xEnd > playheadX) {
-          if (firstFuture) {
-            ctx.moveTo(Math.max(playheadX, seg.xStart), seg.yStart);
-            firstFuture = false;
+      // Helper to build the continuous smooth ribbon path across all visible segments
+      const buildRibbonPath = () => {
+        ctx.beginPath();
+        let lastX = -999999;
+        let lastY = -999999;
+        for (const seg of segments) {
+          if (
+            Math.abs(seg.xStart - lastX) > 1 ||
+            Math.abs(seg.yStart - lastY) > 1
+          ) {
+            ctx.moveTo(seg.xStart, seg.yStart);
           } else {
             ctx.lineTo(seg.xStart, seg.yStart);
           }
@@ -369,13 +365,33 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
             seg.xEnd,
             seg.yEnd,
           );
+          lastX = seg.xEnd;
+          lastY = seg.yEnd;
         }
-      }
+      };
+
+      // Pass 1: Render future preview (right of playhead) in softer translucent stroke
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(playheadX, 0, width - playheadX, height);
+      ctx.clip();
+
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 2.4;
+      ctx.strokeStyle = voiceColor;
+      ctx.globalAlpha = isDark ? 0.40 : 0.35;
+
+      buildRibbonPath();
       ctx.stroke();
       ctx.restore();
 
       // Pass 2: Render active trail (left of playhead) with vibrant glow
       ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, playheadX + 1, height);
+      ctx.clip();
+
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.lineWidth = 3.8;
@@ -383,71 +399,16 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
       ctx.shadowColor = voiceColor;
       ctx.shadowBlur = isDark ? 16 : 8;
 
-      ctx.beginPath();
-      let firstPast = true;
-      for (const seg of segments) {
-        if (seg.xStart <= playheadX) {
-          const clampedEnd = Math.min(playheadX, seg.xEnd);
-          if (firstPast) {
-            ctx.moveTo(seg.xStart, seg.yStart);
-            firstPast = false;
-          } else {
-            ctx.lineTo(seg.xStart, seg.yStart);
-          }
-
-          if (seg.xTransition >= playheadX) {
-            ctx.lineTo(clampedEnd, seg.yStart);
-          } else {
-            ctx.lineTo(seg.xTransition, seg.yStart);
-            ctx.bezierCurveTo(
-              seg.cp1.x,
-              seg.cp1.y,
-              seg.cp2.x,
-              seg.cp2.y,
-              clampedEnd,
-              seg.yEnd,
-            );
-          }
-        }
-      }
+      buildRibbonPath();
       ctx.stroke();
-      ctx.restore();
 
       // Pass 3: White specular center glint for high-end glass tube sheen
-      ctx.save();
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
       ctx.lineWidth = 1.0;
       ctx.strokeStyle = '#FFFFFF';
       ctx.globalAlpha = isDark ? 0.40 : 0.60;
+      ctx.shadowBlur = 0;
 
-      ctx.beginPath();
-      let firstGlint = true;
-      for (const seg of segments) {
-        if (seg.xStart <= playheadX) {
-          const clampedEnd = Math.min(playheadX, seg.xEnd);
-          if (firstGlint) {
-            ctx.moveTo(seg.xStart, seg.yStart);
-            firstGlint = false;
-          } else {
-            ctx.lineTo(seg.xStart, seg.yStart);
-          }
-
-          if (seg.xTransition >= playheadX) {
-            ctx.lineTo(clampedEnd, seg.yStart);
-          } else {
-            ctx.lineTo(seg.xTransition, seg.yStart);
-            ctx.bezierCurveTo(
-              seg.cp1.x,
-              seg.cp1.y,
-              seg.cp2.x,
-              seg.cp2.y,
-              clampedEnd,
-              seg.yEnd,
-            );
-          }
-        }
-      }
+      buildRibbonPath();
       ctx.stroke();
       ctx.restore();
     }
