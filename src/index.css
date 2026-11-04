@@ -15,5 +15,40 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f1f0f7;
+  background-color: #f7f3f9;
+}
+
+/* Subtle glowing pulse animation for playback elements */
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+/* Custom scrollbar reset */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(45, 27, 78, 0.15);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(45, 27, 78, 0.3);
 }
