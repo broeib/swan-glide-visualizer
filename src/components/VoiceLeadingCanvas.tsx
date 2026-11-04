@@ -5,12 +5,8 @@ import React, {
   useState,
 } from 'react';
 import clsx from 'clsx';
-import { ProgressionTimeline, VOICE_PALETTE } from '../types/music';
+import { NEON_PALETTE, ProgressionTimeline, VOICE_PALETTE } from '../types/music';
 import {
-  DEFAULT_MAX_MIDI,
-  DEFAULT_MIN_MIDI,
-  DEFAULT_PADDING_Y,
-  DEFAULT_PLAYHEAD_RATIO,
   DEFAULT_TRANSITION_BEATS,
   DEFAULT_VISIBLE_BEATS,
   MidiYMappingOptions,
@@ -32,6 +28,8 @@ export interface VoiceLeadingCanvasProps {
   progression: ProgressionTimeline;
   /** Normalized playback progress between 0.0 and 1.0. */
   progress: number;
+  /** Visual theme ('pastel' or 'dark'). */
+  theme?: 'pastel' | 'dark';
   /** Optional container class name. */
   className?: string;
   /** Whether interactive seeking and scrubbing are enabled (default true). */
@@ -40,18 +38,18 @@ export interface VoiceLeadingCanvasProps {
   onSeek?: (progress: number) => void;
   /** Visible beat range across canvas width (default 8). */
   visibleBeats?: number;
-  /** Horizontal anchor ratio for the playhead (default 0.35). */
+  /** Horizontal anchor ratio for the playhead (default 0.37). */
   playheadRatio?: number;
-  /** Minimum MIDI note for vertical scaling (default 30). */
+  /** Minimum MIDI note for vertical scaling (default 32). */
   minMidi?: number;
-  /** Maximum MIDI note for vertical scaling (default 85). */
+  /** Maximum MIDI note for vertical scaling (default 84). */
   maxMidi?: number;
-  /** Vertical padding in pixels (default 40). */
+  /** Vertical padding in pixels (default 36). */
   paddingY?: number;
 }
 
 /**
- * Active playhead node configuration for rendering and collision resolution.
+ * Active playhead node configuration for rendering.
  */
 interface ActivePlayheadNode {
   voiceIndex: number;
@@ -62,50 +60,34 @@ interface ActivePlayheadNode {
 }
 
 /**
- * Safe rounded rectangle path generator compatible with all canvas contexts.
- */
-function drawRoundedRect(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  r: number,
-): void {
-  if (typeof ctx.roundRect === 'function') {
-    ctx.roundRect(x, y, w, h, r);
-  } else {
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
-  }
-}
-
-/**
  * Voice-Leading Spline Timeline Canvas component.
  *
- * Renders smooth scrolling continuous ribbons for all 5 voices,
- * high-DPI scaling, fixed playhead at 35% width, glowing intersection nodes,
- * and high-contrast pitch badges with vertical collision avoidance.
+ * Replicates the authentic Swan Glide visualizer aesthetics:
+ * - Faint horizontal semitone grid lines
+ * - Vertical bar lines labeled at the top with chord names
+ * - Solid, glowing saturated line trails to the left of the playhead
+ * - Translucent preview paths to the right of the playhead
+ * - Playhead anchored at 37% with glowing intersection nodes
+ * - Note name labels floating directly to the right in matching voice colors
  */
 export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
   progression,
   progress,
+  theme = 'pastel',
   className,
   interactive = true,
   onSeek,
   visibleBeats = DEFAULT_VISIBLE_BEATS,
-  playheadRatio = DEFAULT_PLAYHEAD_RATIO,
-  minMidi = DEFAULT_MIN_MIDI,
-  maxMidi = DEFAULT_MAX_MIDI,
-  paddingY = DEFAULT_PADDING_Y,
+  playheadRatio = 0.37,
+  minMidi = 32,
+  maxMidi = 84,
+  paddingY = 36,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafIdRef = useRef<number | null>(null);
+
+  const isDark = theme === 'dark';
 
   const [dimensions, setDimensions] = useState<{ width: number; height: number }>({
     width: 0,
@@ -187,7 +169,6 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
 
     const dpr = window.devicePixelRatio || 1;
 
-    // Ensure backing store matches device pixels
     if (
       canvas.width !== Math.round(width * dpr) ||
       canvas.height !== Math.round(height * dpr)
@@ -206,45 +187,37 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
     const currentBeat = progressToBeat(progress, totalBeats);
     const playheadX = getPlayheadX(width, playheadRatio);
 
-    // 1. Subtle horizontal octave pitch reference lines
-    const octaveGuides = [
-      { midi: 36, label: 'C2' },
-      { midi: 48, label: 'C3' },
-      { midi: 60, label: 'C4' },
-      { midi: 72, label: 'C5' },
-      { midi: 84, label: 'C6' },
-    ];
+    // 1. Subtle horizontal semitone grid lines
+    const gridColor = isDark
+      ? 'rgba(255, 255, 255, 0.04)'
+      : 'rgba(46, 16, 77, 0.04)';
 
-    for (const guide of octaveGuides) {
-      if (guide.midi < minMidi || guide.midi > maxMidi) {
-        continue;
-      }
-      const guideY = midiToY(guide.midi, height, midiOptions);
+    ctx.save();
+    ctx.strokeStyle = gridColor;
+    ctx.lineWidth = 1;
 
-      ctx.save();
-      ctx.strokeStyle = 'rgba(45, 27, 78, 0.06)';
-      ctx.lineWidth = 1;
-      ctx.setLineDash([2, 5]);
+    for (let midi = minMidi; midi <= maxMidi; midi++) {
+      const y = midiToY(midi, height, midiOptions);
       ctx.beginPath();
-      ctx.moveTo(32, guideY);
-      ctx.lineTo(width, guideY);
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
       ctx.stroke();
-
-      ctx.setLineDash([]);
-      ctx.font = '10px Inter, system-ui, -apple-system, sans-serif';
-      ctx.fillStyle = 'rgba(45, 27, 78, 0.28)';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(guide.label, 8, guideY);
-      ctx.restore();
     }
+    ctx.restore();
 
-    // 2. Chord step boundary dividers and chord name headers
+    // 2. Chord step boundary vertical bar lines and chord name headers
     if (totalBeats > 0 && progression.steps.length > 0) {
       const beatStart = xToBeat(0, currentBeat, width, visibleBeats, playheadRatio);
       const beatEnd = xToBeat(width, currentBeat, width, visibleBeats, playheadRatio);
       const minCycle = Math.floor((beatStart - 4) / totalBeats);
       const maxCycle = Math.floor((beatEnd + 4) / totalBeats);
+
+      const barLineColor = isDark
+        ? 'rgba(255, 255, 255, 0.16)'
+        : 'rgba(46, 16, 77, 0.18)';
+      const chordLabelColor = isDark
+        ? 'rgba(255, 255, 255, 0.65)'
+        : 'rgba(46, 16, 77, 0.55)';
 
       for (let cycle = minCycle; cycle <= maxCycle; cycle++) {
         let stepStartAccumulator = cycle * totalBeats;
@@ -266,20 +239,18 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
           );
 
           if (stepX >= -80 && stepX <= width + 80) {
-            // Subtle dashed vertical boundary
+            // Clean vertical bar line
             ctx.save();
-            ctx.strokeStyle = 'rgba(45, 27, 78, 0.08)';
+            ctx.strokeStyle = barLineColor;
             ctx.lineWidth = 1;
-            ctx.setLineDash([4, 6]);
             ctx.beginPath();
-            ctx.moveTo(stepX, 26);
+            ctx.moveTo(stepX, 28);
             ctx.lineTo(stepX, height - 16);
             ctx.stroke();
 
-            // Chord name label header
-            ctx.setLineDash([]);
-            ctx.font = '600 11px Inter, system-ui, -apple-system, sans-serif';
-            ctx.fillStyle = 'rgba(45, 27, 78, 0.38)';
+            // Chord name label at the top of the line
+            ctx.font = '600 12px Inter, system-ui, -apple-system, sans-serif';
+            ctx.fillStyle = chordLabelColor;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
             ctx.fillText(step.chordName, stepX + 6, 8);
@@ -289,8 +260,15 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
       }
     }
 
-    // 3. Render continuous ribbons for each of the 5 voices
-    for (let v = 0; v < 5; v++) {
+    // 3. Render continuous ribbons for each voice
+    const maxVoices = Math.max(
+      ...progression.steps.map((s) => s.voices.length),
+      6,
+    );
+
+    const palette = isDark ? NEON_PALETTE : VOICE_PALETTE;
+
+    for (let v = 0; v < maxVoices; v++) {
       const segments = getVoiceRibbonSegments(
         progression,
         v,
@@ -308,51 +286,90 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
       }
 
       const voiceColor =
+        palette[v % palette.length] ??
         progression.steps[0]?.voices[v]?.color ??
-        VOICE_PALETTE[v] ??
-        '#4F46E5';
+        '#A855F7';
 
+      // Pass 1: Render future preview (right of playhead) in softer translucent stroke
       ctx.save();
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-      ctx.lineWidth = 3.5;
+      ctx.lineWidth = 2.4;
       ctx.strokeStyle = voiceColor;
-      ctx.shadowColor = voiceColor;
-      ctx.shadowBlur = 10;
+      ctx.globalAlpha = isDark ? 0.45 : 0.4;
 
       ctx.beginPath();
-      let isFirst = true;
-
+      let firstFuture = true;
       for (const seg of segments) {
-        if (isFirst) {
-          ctx.moveTo(seg.xStart, seg.yStart);
-          isFirst = false;
-        } else {
-          ctx.lineTo(seg.xStart, seg.yStart);
+        if (seg.xEnd > playheadX) {
+          if (firstFuture) {
+            ctx.moveTo(Math.max(playheadX, seg.xStart), seg.yStart);
+            firstFuture = false;
+          } else {
+            ctx.lineTo(seg.xStart, seg.yStart);
+          }
+          ctx.lineTo(seg.xTransition, seg.yStart);
+          ctx.bezierCurveTo(
+            seg.cp1.x,
+            seg.cp1.y,
+            seg.cp2.x,
+            seg.cp2.y,
+            seg.xEnd,
+            seg.yEnd,
+          );
         }
-
-        ctx.lineTo(seg.xTransition, seg.yStart);
-        ctx.bezierCurveTo(
-          seg.cp1.x,
-          seg.cp1.y,
-          seg.cp2.x,
-          seg.cp2.y,
-          seg.xEnd,
-          seg.yEnd,
-        );
       }
+      ctx.stroke();
+      ctx.restore();
 
+      // Pass 2: Render active trail (left of playhead) in full saturated color with glow
+      ctx.save();
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 4.0;
+      ctx.strokeStyle = voiceColor;
+      ctx.shadowColor = voiceColor;
+      ctx.shadowBlur = isDark ? 16 : 8;
+
+      ctx.beginPath();
+      let firstPast = true;
+      for (const seg of segments) {
+        if (seg.xStart <= playheadX) {
+          const clampedEnd = Math.min(playheadX, seg.xEnd);
+          if (firstPast) {
+            ctx.moveTo(seg.xStart, seg.yStart);
+            firstPast = false;
+          } else {
+            ctx.lineTo(seg.xStart, seg.yStart);
+          }
+
+          if (seg.xTransition >= playheadX) {
+            ctx.lineTo(clampedEnd, seg.yStart);
+          } else {
+            ctx.lineTo(seg.xTransition, seg.yStart);
+            ctx.bezierCurveTo(
+              seg.cp1.x,
+              seg.cp1.y,
+              seg.cp2.x,
+              seg.cp2.y,
+              clampedEnd,
+              seg.yEnd,
+            );
+          }
+        }
+      }
       ctx.stroke();
       ctx.restore();
     }
 
     // 4. Render vertical playhead line
+    const playheadColor = isDark
+      ? 'rgba(255, 255, 255, 0.4)'
+      : 'rgba(46, 16, 77, 0.28)';
+
     ctx.save();
-    ctx.strokeStyle = 'rgba(45, 27, 78, 0.32)';
+    ctx.strokeStyle = playheadColor;
     ctx.lineWidth = 1.5;
-    ctx.setLineDash([5, 5]);
-    ctx.shadowColor = 'rgba(79, 70, 229, 0.22)';
-    ctx.shadowBlur = 8;
     ctx.beginPath();
     ctx.moveTo(playheadX, 0);
     ctx.lineTo(playheadX, height);
@@ -361,7 +378,7 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
 
     // 5. Calculate active nodes at the playhead
     const activeNodes: ActivePlayheadNode[] = [];
-    for (let v = 0; v < 5; v++) {
+    for (let v = 0; v < maxVoices; v++) {
       const voiceState = getVoiceStateAtBeat(
         progression,
         v,
@@ -369,10 +386,12 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
         DEFAULT_TRANSITION_BEATS,
       );
       const nodeY = midiToY(voiceState.midi, height, midiOptions);
+      const nodeColor = palette[v % palette.length] ?? voiceState.color;
+
       activeNodes.push({
         voiceIndex: v,
         y: nodeY,
-        color: voiceState.color,
+        color: nodeColor,
         label: voiceState.label,
         midi: voiceState.midi,
       });
@@ -381,16 +400,16 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
     // 6. Draw glowing playhead intersection nodes
     for (const node of activeNodes) {
       ctx.save();
-      // Outer halo radial glow
+      // Outer halo glow
       ctx.shadowColor = node.color;
-      ctx.shadowBlur = 12;
+      ctx.shadowBlur = isDark ? 18 : 12;
       ctx.fillStyle = node.color;
       ctx.beginPath();
       ctx.arc(playheadX, node.y, 6.5, 0, Math.PI * 2);
       ctx.fill();
 
       // Soft semi-transparent outer ring
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
       ctx.beginPath();
       ctx.arc(playheadX, node.y, 9.5, 0, Math.PI * 2);
       ctx.fill();
@@ -404,65 +423,26 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
       ctx.restore();
     }
 
-    // 7. Render high-contrast pitch badges with vertical collision avoidance
-    // Sort nodes vertically from top to bottom
-    const sortedNodes = [...activeNodes].sort((a, b) => a.y - b.y);
-    const rightSideYHistory: number[] = [];
-
-    for (const node of sortedNodes) {
+    // 7. Render note labels directly to the right of each node in matching voice colors
+    for (const node of activeNodes) {
       ctx.save();
-      ctx.font = '600 11px Inter, system-ui, -apple-system, sans-serif';
-
-      const metrics = ctx.measureText(node.label);
-      const textWidth = metrics.width;
-      const pillHeight = 18;
-      const pillWidth = Math.max(26, textWidth + 12);
-      const pillY = node.y - pillHeight / 2;
-
-      // Check vertical collision with previously placed right-side badges
-      const collidesOnRight = rightSideYHistory.some(
-        (prevY) => Math.abs(prevY - node.y) < 20,
-      );
-
-      let pillX: number;
-      if (collidesOnRight) {
-        // Place on left side of playhead
-        pillX = playheadX - 14 - pillWidth;
-      } else {
-        // Place on right side of playhead
-        pillX = playheadX + 14;
-        rightSideYHistory.push(node.y);
-      }
-
-      // Rounded badge pill background
-      ctx.shadowColor = 'rgba(45, 27, 78, 0.16)';
-      ctx.shadowBlur = 4;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 1;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.94)';
-      ctx.strokeStyle = 'rgba(45, 27, 78, 0.18)';
-      ctx.lineWidth = 1;
-
-      ctx.beginPath();
-      drawRoundedRect(ctx, pillX, pillY, pillWidth, pillHeight, 4);
-      ctx.fill();
-      ctx.stroke();
-
-      // Dark indigo label text
-      ctx.shadowBlur = 0;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
-      ctx.fillStyle = '#2D1B4E';
-      ctx.textAlign = 'center';
+      ctx.font = '600 13px Inter, system-ui, -apple-system, sans-serif';
+      ctx.fillStyle = node.color;
+      ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.fillText(node.label, pillX + pillWidth / 2, node.y);
 
+      // Subtle shadow for legibility
+      ctx.shadowColor = isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.7)';
+      ctx.shadowBlur = 4;
+
+      ctx.fillText(node.label, playheadX + 14, node.y);
       ctx.restore();
     }
 
     ctx.restore();
   }, [
     dimensions,
+    isDark,
     maxMidi,
     minMidi,
     midiOptions,
@@ -518,7 +498,6 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
     [onSeek, playheadRatio, progress, progression, visibleBeats],
   );
 
-  // Pointer event handlers for interactive scrub and seek
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!interactive || !onSeek) {
       return;
@@ -572,7 +551,7 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
     <div
       ref={containerRef}
       className={clsx(
-        'relative w-full h-full min-h-[300px] overflow-hidden select-none',
+        'relative w-full h-full min-h-[340px] overflow-hidden select-none',
         interactive && onSeek && 'cursor-ew-resize',
         className,
       )}

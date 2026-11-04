@@ -55,13 +55,17 @@ export interface GuitarChordVoicing {
  * A distinct harmonic unit in the progression timeline.
  */
 export interface ChordStep {
-  /** Roman or jazz chord symbol (e.g. "Fm9", "C7(b13)"). */
+  /** Roman or jazz chord symbol (e.g. "Fm9", "C7(#9)", "Dbmaj9"). */
   chordName: string;
+  /** Formatted display parts for hero typography. */
+  chordRoot?: string;
+  chordAccidental?: string;
+  chordExtension?: string;
   /** Social or artist attribution handle (e.g. "@ultravioletchorus"). */
   artistHandle: string;
   /** Duration of this step in musical beats (e.g. 4). */
   durationBeats: number;
-  /** Strictly 5 voices sorted in ascending pitch order. */
+  /** Array of voices sorted in ascending pitch order. */
   voices: VoiceNote[];
   /** 6-string guitar diagram configuration for this chord. */
   guitarDiagram: GuitarChordVoicing;
@@ -96,24 +100,26 @@ export interface ProgressionTimeline {
 }
 
 /**
- * Standard palette colors for the 5 voice layers.
- * Ordered from lowest pitch (Bass) to highest pitch (Soprano).
+ * Reference color palette matching the Swan Glide video.
+ * Ordered from lowest pitch (Bass) to highest pitch (Lead).
  */
 export const VOICE_PALETTE = [
-  '#4F46E5', // Bass: indigo
-  '#EC4899', // Tenor: pink
-  '#F43F5E', // Alto: rose
-  '#8B5CF6', // Mezzo: purple
-  '#06B6D4', // Soprano: cyan
+  '#4A154B', // Bass: deep purple/indigo
+  '#3B82F6', // Tenor 1: blue
+  '#06B6D4', // Tenor 2: cyan
+  '#D946EF', // Alto: magenta
+  '#F43F5E', // Mezzo: coral/rose
+  '#A855F7', // Soprano: lavender/violet
 ] as const;
 
 /**
- * Standard names for the 5 voice ribbon layers.
+ * Neon Glow palette for Dark Mode theme.
  */
-export const VOICE_ROLES = [
-  'Bass',
-  'Tenor',
-  'Alto',
-  'Mezzo',
-  'Soprano',
+export const NEON_PALETTE = [
+  '#EF4444', // Bass: red
+  '#F97316', // Tenor 1: orange
+  '#FBBF24', // Tenor 2: amber
+  '#FDE047', // Alto: gold
+  '#FEF08A', // Mezzo: light yellow
+  '#FFFFFF', // Soprano: bright white glow
 ] as const;

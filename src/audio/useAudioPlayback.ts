@@ -3,6 +3,13 @@ import { ChordStep, ProgressionTimeline } from '../types/music';
 import { AudioEngine, AudioPlaybackState } from './audioEngine';
 
 /**
+ * Supported audio playback modes:
+ * - 'studio': Plays the authentic studio-mastered Swan Glide recording from the reference video.
+ * - 'synth': Plays the interactive Tone.js polyphonic Rhodes engine.
+ */
+export type AudioMode = 'studio' | 'synth';
+
+/**
  * Return signature for the useAudioPlayback hook.
  */
 export interface UseAudioPlaybackResult {
@@ -16,6 +23,10 @@ export interface UseAudioPlaybackResult {
   isMuted: boolean;
   /** Active ChordStep configuration at current playback position. */
   currentStep: ChordStep;
+  /** Active audio mode ('studio' or 'synth'). */
+  audioMode: AudioMode;
+  /** Switches between 'studio' and 'synth' audio playback modes. */
+  setAudioMode: (mode: AudioMode) => void;
   /** Unlocks Web Audio context conforming to browser autoplay policies. */
   startAudio: () => Promise<void>;
   /** Starts playback from the current position. */
@@ -32,11 +43,10 @@ export interface UseAudioPlaybackResult {
   setBpm: (bpm: number) => void;
   /** Reference to the underlying AudioEngine instance. */
   engine: AudioEngine | null;
+  /** Reference to the HTML5 Audio element for stream capture. */
+  audioElement: HTMLAudioElement | null;
 }
 
-/**
- * Fallback empty ChordStep used if timeline steps are temporarily empty.
- */
 const FALLBACK_CHORD_STEP: ChordStep = {
   chordName: '',
   artistHandle: '',
@@ -49,16 +59,29 @@ const FALLBACK_CHORD_STEP: ChordStep = {
 };
 
 /**
- * React hook managing the headless AudioEngine lifecycle, transport state,
- * and public playback controls for a ProgressionTimeline.
+ * Path to the authentic studio reference recording.
+ */
+const STUDIO_AUDIO_URL = '/audio/swan_glide_reference.mp3';
+
+/**
+ * Duration in seconds for the reference progression loop (24 seconds).
+ */
+const LOOP_DURATION_SECONDS = 24.0;
+
+/**
+ * React hook managing synchronized audio playback.
  *
- * Provides reactive 60fps playhead progress and active chord indexing
- * suitable for synchronized visualization canvases and playback controls.
+ * Supports both studio reference audio playback and Tone.js synthesis,
+ * emitting reactive 60fps playhead progress and active chord indexing.
  */
 export function useAudioPlayback(
   timeline: ProgressionTimeline
 ): UseAudioPlaybackResult {
   const engineRef = useRef<AudioEngine | null>(null);
+  const studioAudioRef = useRef<HTMLAudioElement | null>(null);
+  const rafIdRef = useRef<number | null>(null);
+
+  const [audioMode, setAudioMode] = useState<AudioMode>('studio');
 
   const [playbackState, setPlaybackState] = useState<AudioPlaybackState>(() => ({
     isPlaying: false,
@@ -67,6 +90,21 @@ export function useAudioPlayback(
     isMuted: false,
   }));
 
+  // Initialize HTML5 studio audio element
+  useEffect(() => {
+    const audio = new Audio(STUDIO_AUDIO_URL);
+    audio.preload = 'auto';
+    audio.loop = false;
+    audio.volume = 1.0;
+    studioAudioRef.current = audio;
+
+    return () => {
+      audio.pause();
+      audio.src = '';
+      studioAudioRef.current = null;
+    };
+  }, []);
+
   const getEngine = useCallback((): AudioEngine => {
     if (!engineRef.current) {
       engineRef.current = new AudioEngine(timeline);
@@ -74,8 +112,12 @@ export function useAudioPlayback(
     return engineRef.current;
   }, [timeline]);
 
-  // Synchronize timeline changes and state subscriptions
+  // Subscribe to Tone.js engine when in 'synth' mode
   useEffect(() => {
+    if (audioMode !== 'synth') {
+      return;
+    }
+
     const engine = getEngine();
     engine.setTimeline(timeline);
 
@@ -86,50 +128,175 @@ export function useAudioPlayback(
     return () => {
       unsubscribe();
     };
-  }, [getEngine, timeline]);
+  }, [audioMode, getEngine, timeline]);
 
-  // Clean up audio graph on component unmount
+  // Progress animation frame loop for Studio Audio mode
+  useEffect(() => {
+    if (audioMode !== 'studio') {
+      return;
+    }
+
+    const audio = studioAudioRef.current;
+    if (!audio) {
+      return;
+    }
+
+    let isRunning = true;
+
+    const tick = () => {
+      if (!isRunning) {
+        return;
+      }
+
+      if (!audio.paused && !audio.ended) {
+        const currentTime = audio.currentTime;
+        // Loop at LOOP_DURATION_SECONDS
+        const loopTime = currentTime % LOOP_DURATION_SECONDS;
+        if (currentTime >= LOOP_DURATION_SECONDS && audio.loop === false) {
+          audio.currentTime = 0;
+        }
+
+        const normalizedProgress = loopTime / LOOP_DURATION_SECONDS;
+        const totalBeats = timeline.getTotalBeats();
+        const currentBeat = normalizedProgress * totalBeats;
+        const resolution = timeline.getStepAtBeat(currentBeat);
+
+        setPlaybackState((prev) => ({
+          ...prev,
+          isPlaying: true,
+          progress: normalizedProgress,
+          currentChordIndex: resolution.stepIndex,
+        }));
+      }
+
+      rafIdRef.current = requestAnimationFrame(tick);
+    };
+
+    rafIdRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      isRunning = false;
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+    };
+  }, [audioMode, timeline]);
+
+  // Clean up on component unmount
   useEffect(() => {
     return () => {
       if (engineRef.current) {
         engineRef.current.dispose();
         engineRef.current = null;
       }
+      if (studioAudioRef.current) {
+        studioAudioRef.current.pause();
+      }
     };
   }, []);
 
   const startAudio = useCallback(async () => {
-    await getEngine().startAudio();
-  }, [getEngine]);
+    if (audioMode === 'synth') {
+      await getEngine().startAudio();
+    }
+  }, [audioMode, getEngine]);
 
   const play = useCallback(async () => {
-    await getEngine().play();
-  }, [getEngine]);
+    if (audioMode === 'studio') {
+      const audio = studioAudioRef.current;
+      if (audio) {
+        await audio.play();
+        setPlaybackState((prev) => ({ ...prev, isPlaying: true }));
+      }
+    } else {
+      await getEngine().play();
+    }
+  }, [audioMode, getEngine]);
 
   const pause = useCallback(() => {
-    getEngine().pause();
-  }, [getEngine]);
+    if (audioMode === 'studio') {
+      const audio = studioAudioRef.current;
+      if (audio) {
+        audio.pause();
+        setPlaybackState((prev) => ({ ...prev, isPlaying: false }));
+      }
+    } else {
+      getEngine().pause();
+    }
+  }, [audioMode, getEngine]);
 
   const togglePlay = useCallback(async () => {
-    await getEngine().togglePlay();
-  }, [getEngine]);
+    if (playbackState.isPlaying) {
+      pause();
+    } else {
+      await play();
+    }
+  }, [pause, play, playbackState.isPlaying]);
 
   const seek = useCallback(
-    (progress: number) => {
-      getEngine().seek(progress);
+    (targetProgress: number) => {
+      const clamped = Math.max(0, Math.min(1, targetProgress));
+
+      if (audioMode === 'studio') {
+        const audio = studioAudioRef.current;
+        if (audio) {
+          audio.currentTime = clamped * LOOP_DURATION_SECONDS;
+        }
+        const totalBeats = timeline.getTotalBeats();
+        const resolution = timeline.getStepAtBeat(clamped * totalBeats);
+        setPlaybackState((prev) => ({
+          ...prev,
+          progress: clamped,
+          currentChordIndex: resolution.stepIndex,
+        }));
+      } else {
+        getEngine().seek(clamped);
+      }
     },
-    [getEngine]
+    [audioMode, getEngine, timeline]
   );
 
   const toggleMute = useCallback(() => {
-    getEngine().toggleMute();
-  }, [getEngine]);
+    if (audioMode === 'studio') {
+      const audio = studioAudioRef.current;
+      if (audio) {
+        audio.muted = !audio.muted;
+        setPlaybackState((prev) => ({ ...prev, isMuted: audio.muted }));
+      }
+    } else {
+      getEngine().toggleMute();
+      setPlaybackState((prev) => ({ ...prev, isMuted: !prev.isMuted }));
+    }
+  }, [audioMode, getEngine]);
 
   const setBpm = useCallback(
     (bpm: number) => {
-      getEngine().setBpm(bpm);
+      if (audioMode === 'synth') {
+        getEngine().setBpm(bpm);
+      }
     },
-    [getEngine]
+    [audioMode, getEngine]
+  );
+
+  const handleSetAudioMode = useCallback(
+    (newMode: AudioMode) => {
+      if (newMode === audioMode) {
+        return;
+      }
+
+      // Stop current playback before switching
+      if (playbackState.isPlaying) {
+        if (audioMode === 'studio' && studioAudioRef.current) {
+          studioAudioRef.current.pause();
+        } else if (audioMode === 'synth' && engineRef.current) {
+          engineRef.current.pause();
+        }
+        setPlaybackState((prev) => ({ ...prev, isPlaying: false }));
+      }
+
+      setAudioMode(newMode);
+    },
+    [audioMode, playbackState.isPlaying]
   );
 
   const currentStep: ChordStep = useMemo(() => {
@@ -150,6 +317,8 @@ export function useAudioPlayback(
     currentChordIndex: playbackState.currentChordIndex,
     isMuted: playbackState.isMuted,
     currentStep,
+    audioMode,
+    setAudioMode: handleSetAudioMode,
     startAudio,
     play,
     pause,
@@ -158,5 +327,6 @@ export function useAudioPlayback(
     toggleMute,
     setBpm,
     engine: engineRef.current,
+    audioElement: studioAudioRef.current,
   };
 }

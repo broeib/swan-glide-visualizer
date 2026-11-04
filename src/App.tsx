@@ -1,136 +1,222 @@
-import React, { useCallback, useMemo } from 'react';
-import { Play } from 'lucide-react';
+import React, { useCallback, useState } from 'react';
+import {
+  Play,
+  Pause,
+  RotateCcw,
+  Volume2,
+  VolumeX,
+  Sparkles,
+  Sun,
+  Moon,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
+import clsx from 'clsx';
 import { mockProgression } from './data/mockProgression';
 import { useAudioPlayback } from './audio/useAudioPlayback';
 import { VoiceLeadingCanvas } from './components/VoiceLeadingCanvas';
 import { GuitarFretboard } from './components/GuitarFretboard';
 import { HeaderChordDisplay } from './components/HeaderChordDisplay';
-import { PlaybackControls } from './components/PlaybackControls';
+import { VideoExporter } from './components/VideoExporter';
 
 /**
- * Swan Glide Visualizer main application.
+ * Swan Glide Visualizer application.
  *
- * Integrates the continuous voice-leading spline canvas,
- * synchronized 6-string guitar chord voicing diagram,
- * top harmonic header, and transport playback controls
- * within an elegant 9:16 mobile-first portrait container.
+ * Implements an exact 1:1 replica of the viral Swan Glide / @ultravioletchorus
+ * 9:16 video aesthetic, with authentic studio Rhodes audio synchronization,
+ * continuous voice-leading ribbons, and direct 1080x1920 video export.
  */
 export const App: React.FC = () => {
+  const [theme, setTheme] = useState<'pastel' | 'dark'>('pastel');
+  const [showControls, setShowControls] = useState<boolean>(true);
+
   const {
     isPlaying,
     progress,
     currentChordIndex,
     currentStep,
     isMuted,
+    audioMode,
+    setAudioMode,
     startAudio,
-    play,
     togglePlay,
     seek,
     toggleMute,
+    audioElement,
   } = useAudioPlayback(mockProgression);
-
-  const totalDurationSeconds = useMemo(
-    () => mockProgression.getTotalDurationSeconds(),
-    []
-  );
 
   const handleTogglePlay = useCallback(async () => {
     try {
       await startAudio();
       await togglePlay();
     } catch (error) {
-      console.error('Audio transport toggle error:', error);
+      console.error('Audio toggle error:', error);
     }
   }, [startAudio, togglePlay]);
-
-  const handleStartPlay = useCallback(async () => {
-    try {
-      await startAudio();
-      await play();
-    } catch (error) {
-      console.error('Audio start error:', error);
-    }
-  }, [startAudio, play]);
-
-  const handleSeek = useCallback(
-    (newProgress: number) => {
-      seek(newProgress);
-    },
-    [seek]
-  );
 
   const handleRestart = useCallback(() => {
     seek(0);
   }, [seek]);
 
+  const isDark = theme === 'dark';
+
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-tr from-rose-100/70 via-purple-50 to-indigo-100/60 p-0 sm:p-4 md:p-6 antialiased selection:bg-rose-200">
-      {/* Decorative ambient background blur orbs on desktop */}
-      <div
-        className="fixed top-1/4 left-1/4 w-96 h-96 rounded-full bg-pink-200/40 blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/2"
-        aria-hidden="true"
-      />
-      <div
-        className="fixed bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-purple-200/40 blur-3xl pointer-events-none translate-x-1/2 translate-y-1/2"
-        aria-hidden="true"
-      />
+    <div className="min-h-screen w-full flex items-center justify-center bg-zinc-950 p-0 sm:p-4 md:p-6 antialiased select-none overflow-x-hidden">
+      {/* Main 9:16 Portrait Canvas Shell */}
+      <main
+        className={clsx(
+          'w-full h-[100dvh] sm:h-[92vh] max-w-[430px] aspect-[9/16] rounded-none sm:rounded-3xl shadow-2xl relative flex flex-col justify-between overflow-hidden transition-colors duration-500',
+          isDark
+            ? 'bg-gradient-to-b from-[#1c0808] via-[#120404] to-[#0a0202] text-white shadow-black/80 sm:border sm:border-zinc-800'
+            : 'bg-gradient-to-b from-[#fad4e6] via-[#f7cfe3] to-[#fad6e8] text-[#2E104D] shadow-purple-950/25 sm:border sm:border-white/50',
+        )}
+      >
+        {/* Top Section: Hero Chord Typography & Subtitle */}
+        <div className="shrink-0 z-10 pt-2">
+          <HeaderChordDisplay
+            currentStep={currentStep}
+            stepIndex={currentChordIndex}
+            totalSteps={mockProgression.steps.length}
+            theme={theme}
+          />
+        </div>
 
-      {/* Main 9:16 portrait visualizer card container */}
-      <main className="w-full h-[100dvh] sm:h-auto max-w-[420px] sm:aspect-[9/16] sm:max-h-[880px] rounded-none sm:rounded-3xl shadow-2xl shadow-purple-950/15 overflow-hidden relative flex flex-col border-0 sm:border border-white/60 bg-gradient-to-br from-pink-100 via-rose-100 to-purple-200 p-3 sm:p-4 gap-2.5 backdrop-blur-xl">
-        {/* Top: HeaderChordDisplay showing active chord, artist handle, and step pills */}
-        <HeaderChordDisplay
-          currentStep={currentStep}
-          stepIndex={currentChordIndex}
-          totalSteps={mockProgression.steps.length}
-          className="shrink-0 !py-3 !px-4 !rounded-2xl shadow-sm"
-        />
-
-        {/* Middle Upper: VoiceLeadingCanvas continuous spline ribbons */}
-        <div className="flex-1 min-h-0 w-full relative rounded-2xl overflow-hidden shadow-inner border border-white/60 bg-white/40 backdrop-blur-sm">
+        {/* Center Section: Voice-Leading Spline Timeline Canvas */}
+        <div className="flex-1 w-full min-h-0 relative flex items-center justify-center my-1">
           <VoiceLeadingCanvas
             progression={mockProgression}
             progress={progress}
-            onSeek={handleSeek}
-            playheadRatio={0.35}
-            className="!min-h-0 w-full h-full"
+            theme={theme}
+            onSeek={seek}
+            playheadRatio={0.37}
+            className="w-full h-full"
           />
 
-          {/* Gesture onboarding prompt when audio is idle before first playback */}
+          {/* Initial Tap-to-Play Overlay */}
           {!isPlaying && progress === 0 && (
             <button
               type="button"
-              onClick={handleStartPlay}
-              className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-violet-950/15 backdrop-blur-[2px] transition-all duration-300 hover:bg-violet-950/20 group cursor-pointer"
-              aria-label="Start audio playback"
+              onClick={handleTogglePlay}
+              className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/10 backdrop-blur-[2px] cursor-pointer group transition-all"
+              aria-label="Start playback"
             >
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 text-[#2D1B4E] font-medium text-xs shadow-lg shadow-purple-950/10 group-hover:scale-105 transition-transform duration-200 border border-white">
-                <Play className="w-3.5 h-3.5 fill-violet-600 text-violet-600" />
+              <div
+                className={clsx(
+                  'flex items-center gap-2.5 px-5 py-2.5 rounded-full font-bold text-sm shadow-xl transition-all duration-300 group-hover:scale-105',
+                  isDark
+                    ? 'bg-amber-400 text-zinc-950 shadow-amber-500/20'
+                    : 'bg-[#2E104D] text-white shadow-purple-950/20',
+                )}
+              >
+                <Play className="w-4 h-4 fill-current" />
                 <span>Tap to Play</span>
               </div>
             </button>
           )}
         </div>
 
-        {/* Middle Lower: GuitarFretboard chord box diagram */}
-        <GuitarFretboard
-          voicing={currentStep.guitarDiagram}
-          chordName={currentStep.chordName}
-          className="shrink-0 !py-2 !px-3 !rounded-2xl shadow-sm [&_svg]:max-w-[165px] [&_svg]:max-h-[170px]"
-        />
+        {/* Bottom Section: Guitar Fretboard & Brand Attribution */}
+        <div className="shrink-0 z-10 pb-4">
+          <GuitarFretboard
+            voicing={currentStep.guitarDiagram}
+            chordName={currentStep.chordName}
+            theme={theme}
+          />
+        </div>
 
-        {/* Bottom: PlaybackControls with scrubber, play/pause, mute, and BPM badge */}
-        <PlaybackControls
-          isPlaying={isPlaying}
-          isMuted={isMuted}
-          progress={progress}
-          bpm={mockProgression.bpm}
-          totalDurationSeconds={totalDurationSeconds}
-          onTogglePlay={handleTogglePlay}
-          onToggleMute={toggleMute}
-          onSeek={handleSeek}
-          onRestart={handleRestart}
-          className="shrink-0 !py-3 !px-4 !rounded-2xl !gap-2 shadow-sm"
-        />
+        {/* Floating Minimal Controls Bar */}
+        {showControls && (
+          <div className="absolute bottom-3 left-3 right-3 z-30 flex flex-col gap-2 p-2.5 rounded-2xl bg-black/60 backdrop-blur-xl border border-white/10 text-white shadow-2xl transition-all duration-300">
+            {/* Top row controls */}
+            <div className="flex items-center justify-between gap-2">
+              {/* Play / Pause button */}
+              <button
+                type="button"
+                onClick={handleTogglePlay}
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-white text-zinc-950 hover:scale-105 transition-transform cursor-pointer shadow"
+                aria-label={isPlaying ? 'Pause' : 'Play'}
+              >
+                {isPlaying ? (
+                  <Pause className="w-4 h-4 fill-current" />
+                ) : (
+                  <Play className="w-4 h-4 fill-current ml-0.5" />
+                )}
+              </button>
+
+              {/* Restart button */}
+              <button
+                type="button"
+                onClick={handleRestart}
+                className="p-2 rounded-full hover:bg-white/10 text-white/80 hover:text-white transition-colors cursor-pointer"
+                title="Restart Progression"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+
+              {/* Audio Source mode toggle */}
+              <button
+                type="button"
+                onClick={() => setAudioMode(audioMode === 'studio' ? 'synth' : 'studio')}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-xs font-semibold text-white transition-colors cursor-pointer"
+                title="Toggle Studio Audio vs Synth Mode"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>{audioMode === 'studio' ? 'Studio Track' : 'Synth Mode'}</span>
+              </button>
+
+              {/* Theme toggle */}
+              <button
+                type="button"
+                onClick={() => setTheme(isDark ? 'pastel' : 'dark')}
+                className="p-2 rounded-full hover:bg-white/10 text-white/80 hover:text-white transition-colors cursor-pointer"
+                title="Switch Theme (Pastel / Neon Dark)"
+              >
+                {isDark ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-purple-300" />}
+              </button>
+
+              {/* Mute toggle */}
+              <button
+                type="button"
+                onClick={toggleMute}
+                className="p-2 rounded-full hover:bg-white/10 text-white/80 hover:text-white transition-colors cursor-pointer"
+                title={isMuted ? 'Unmute' : 'Mute'}
+              >
+                {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4" />}
+              </button>
+            </div>
+
+            {/* Bottom row: Video Exporter & Hide Controls */}
+            <div className="flex items-center justify-between gap-2 pt-1 border-t border-white/10">
+              <VideoExporter
+                progression={mockProgression}
+                theme={theme}
+                audioElement={audioElement}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowControls(false)}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-full hover:bg-white/10 text-[11px] font-medium text-white/70 hover:text-white transition-colors cursor-pointer"
+                title="Hide controls for clean video preview"
+              >
+                <EyeOff className="w-3.5 h-3.5" />
+                <span>Hide UI</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Minimal Unhide Button when controls are hidden */}
+        {!showControls && (
+          <button
+            type="button"
+            onClick={() => setShowControls(true)}
+            className="absolute bottom-3 right-3 z-30 p-2 rounded-full bg-black/40 hover:bg-black/60 text-white/80 hover:text-white backdrop-blur-md border border-white/10 shadow-lg transition-all cursor-pointer"
+            title="Show Controls"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
+        )}
       </main>
     </div>
   );
