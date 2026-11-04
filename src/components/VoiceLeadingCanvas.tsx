@@ -196,19 +196,50 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
     const currentBeat = progressToBeat(progress, totalBeats);
     const playheadX = getPlayheadX(width, playheadRatio);
 
-    // 1. Subtle horizontal semitone grid lines
-    const gridColor = themePreset.gridLineColor;
+    // 1. Refined musical pitch ruler & octave grid lines
+    const octaveNotes = [
+      { midi: 36, label: 'C2' },
+      { midi: 48, label: 'C3' },
+      { midi: 60, label: 'C4' },
+      { midi: 72, label: 'C5' },
+      { midi: 84, label: 'C6' },
+    ];
 
     ctx.save();
-    ctx.strokeStyle = gridColor;
-    ctx.lineWidth = 1;
-
+    // Ultra-subtle intermediate semitone guide lines
+    ctx.strokeStyle = themePreset.gridLineColor;
+    ctx.lineWidth = 0.75;
     for (let midi = minMidi; midi <= maxMidi; midi++) {
+      if (midi % 12 === 0) continue; // Drawn with prominent octave styling below
       const y = midiToY(midi, height, midiOptions);
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(width, y);
       ctx.stroke();
+    }
+
+    // Prominent octave reference lines with left margin pitch labels
+    for (const oct of octaveNotes) {
+      if (oct.midi >= minMidi && oct.midi <= maxMidi) {
+        const y = midiToY(oct.midi, height, midiOptions);
+        ctx.strokeStyle = isDark
+          ? 'rgba(255, 255, 255, 0.12)'
+          : 'rgba(36, 10, 52, 0.12)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 4]);
+        ctx.beginPath();
+        ctx.moveTo(26, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Micro-pitch label
+        ctx.font = '500 9px "JetBrains Mono", monospace';
+        ctx.fillStyle = themePreset.textMutedColor;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(oct.label, 6, y);
+      }
     }
     ctx.restore();
 
@@ -221,7 +252,7 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
 
       const barLineColor = themePreset.barLineColor;
       const chordLabelColor = isDark
-        ? 'rgba(255, 255, 255, 0.75)'
+        ? 'rgba(255, 255, 255, 0.85)'
         : themePreset.textColor;
 
       for (let cycle = minCycle; cycle <= maxCycle; cycle++) {
@@ -250,15 +281,31 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(stepX, 28);
-            ctx.lineTo(stepX, height - 16);
+            ctx.lineTo(stepX, height - 12);
             ctx.stroke();
 
-            // Chord name label at the top of the line
-            ctx.font = '600 12px Inter, system-ui, -apple-system, sans-serif';
-            ctx.fillStyle = chordLabelColor;
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'top';
-            ctx.fillText(step.chordName, stepX + 6, 8);
+            // Draw upcoming chord step label if not directly under the hero chord header
+            if (stepX > playheadX + 25 || stepX < playheadX - 60) {
+              ctx.font = '700 10px "Outfit", "Plus Jakarta Sans", sans-serif';
+              const chordText = step.chordName;
+              const textWidth = ctx.measureText(chordText).width;
+
+              ctx.fillStyle = isDark
+                ? 'rgba(12, 9, 20, 0.80)'
+                : 'rgba(255, 255, 255, 0.88)';
+              ctx.beginPath();
+              if (typeof ctx.roundRect === 'function') {
+                ctx.roundRect(stepX + 4, 10, textWidth + 8, 15, 4);
+              } else {
+                ctx.rect(stepX + 4, 10, textWidth + 8, 15);
+              }
+              ctx.fill();
+
+              ctx.fillStyle = chordLabelColor;
+              ctx.textAlign = 'left';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(chordText, stepX + 8, 17.5);
+            }
             ctx.restore();
           }
         }
@@ -301,7 +348,7 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
       ctx.lineJoin = 'round';
       ctx.lineWidth = 2.4;
       ctx.strokeStyle = voiceColor;
-      ctx.globalAlpha = isDark ? 0.45 : 0.4;
+      ctx.globalAlpha = isDark ? 0.40 : 0.35;
 
       ctx.beginPath();
       let firstFuture = true;
@@ -327,11 +374,11 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
       ctx.stroke();
       ctx.restore();
 
-      // Pass 2: Render active trail (left of playhead) in full saturated color with glow
+      // Pass 2: Render active trail (left of playhead) with vibrant glow
       ctx.save();
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-      ctx.lineWidth = 4.0;
+      ctx.lineWidth = 3.8;
       ctx.strokeStyle = voiceColor;
       ctx.shadowColor = voiceColor;
       ctx.shadowBlur = isDark ? 16 : 8;
@@ -365,6 +412,44 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
       }
       ctx.stroke();
       ctx.restore();
+
+      // Pass 3: White specular center glint for high-end glass tube sheen
+      ctx.save();
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 1.0;
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.globalAlpha = isDark ? 0.40 : 0.60;
+
+      ctx.beginPath();
+      let firstGlint = true;
+      for (const seg of segments) {
+        if (seg.xStart <= playheadX) {
+          const clampedEnd = Math.min(playheadX, seg.xEnd);
+          if (firstGlint) {
+            ctx.moveTo(seg.xStart, seg.yStart);
+            firstGlint = false;
+          } else {
+            ctx.lineTo(seg.xStart, seg.yStart);
+          }
+
+          if (seg.xTransition >= playheadX) {
+            ctx.lineTo(clampedEnd, seg.yStart);
+          } else {
+            ctx.lineTo(seg.xTransition, seg.yStart);
+            ctx.bezierCurveTo(
+              seg.cp1.x,
+              seg.cp1.y,
+              seg.cp2.x,
+              seg.cp2.y,
+              clampedEnd,
+              seg.yEnd,
+            );
+          }
+        }
+      }
+      ctx.stroke();
+      ctx.restore();
     }
 
     // 4. Render vertical playhead line
@@ -372,10 +457,10 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
     ctx.strokeStyle = themePreset.playheadColor;
     ctx.shadowColor = themePreset.playheadGlowColor;
     ctx.shadowBlur = themePreset.playheadGlowBlur;
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 1.75;
     ctx.beginPath();
-    ctx.moveTo(playheadX, 0);
-    ctx.lineTo(playheadX, height);
+    ctx.moveTo(playheadX, 10);
+    ctx.lineTo(playheadX, height - 10);
     ctx.stroke();
     ctx.restore();
 
@@ -405,14 +490,14 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
       ctx.save();
       // Outer halo glow
       ctx.shadowColor = node.color;
-      ctx.shadowBlur = isDark ? 18 : 12;
+      ctx.shadowBlur = isDark ? 20 : 12;
       ctx.fillStyle = node.color;
       ctx.beginPath();
       ctx.arc(playheadX, node.y, 6.5, 0, Math.PI * 2);
       ctx.fill();
 
       // Soft semi-transparent outer ring
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
       ctx.beginPath();
       ctx.arc(playheadX, node.y, 9.5, 0, Math.PI * 2);
       ctx.fill();
@@ -426,19 +511,47 @@ export const VoiceLeadingCanvas: React.FC<VoiceLeadingCanvasProps> = ({
       ctx.restore();
     }
 
-    // 7. Render note labels directly to the right of each node in matching voice colors
+    // 7. Render note labels directly to the right inside floating pill badges
     for (const node of activeNodes) {
+      const formattedLabel = node.label.replace('b', '♭').replace('#', '♯');
       ctx.save();
-      ctx.font = '600 13px Inter, system-ui, -apple-system, sans-serif';
-      ctx.fillStyle = node.color;
-      ctx.textAlign = 'left';
+      ctx.font = '700 11px "Plus Jakarta Sans", system-ui, sans-serif';
+      const textWidth = ctx.measureText(formattedLabel).width;
+      const pillW = Math.max(textWidth + 12, 34);
+      const pillH = 17;
+      const pillX = playheadX + 11;
+      const pillY = node.y - pillH / 2;
+      const radius = pillH / 2;
+
+      // Pill capsule background with soft drop shadow
+      ctx.save();
+      ctx.beginPath();
+      if (typeof ctx.roundRect === 'function') {
+        ctx.roundRect(pillX, pillY, pillW, pillH, radius);
+      } else {
+        ctx.rect(pillX, pillY, pillW, pillH);
+      }
+      ctx.fillStyle = isDark
+        ? 'rgba(15, 12, 24, 0.88)'
+        : 'rgba(255, 255, 255, 0.92)';
+      ctx.shadowColor = isDark
+        ? 'rgba(0, 0, 0, 0.6)'
+        : 'rgba(36, 10, 52, 0.18)';
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetY = 1;
+      ctx.fill();
+
+      // Pill outline in voice color
+      ctx.strokeStyle = node.color;
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      ctx.restore();
+
+      // Note label text centered inside pill
+      ctx.fillStyle = isDark ? '#FFFFFF' : node.color;
+      ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-
-      // Subtle shadow for legibility
-      ctx.shadowColor = isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.7)';
-      ctx.shadowBlur = 4;
-
-      ctx.fillText(node.label, playheadX + 14, node.y);
+      ctx.fillText(formattedLabel, pillX + pillW / 2, node.y + 0.5);
       ctx.restore();
     }
 

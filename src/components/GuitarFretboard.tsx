@@ -18,21 +18,21 @@ export interface GuitarFretboardProps {
 }
 
 /**
- * Layout constants for the SVG fretboard diagram.
+ * Layout constants for the spacious SVG fretboard diagram.
  */
 const NUM_STRINGS = 6;
 const NUM_FRETS = 5;
 
-const STRING_START_X = 38;
-const STRING_SPACING = 22;
-const STRING_END_X = STRING_START_X + (NUM_STRINGS - 1) * STRING_SPACING; // 148
+const STRING_START_X = 42;
+const STRING_SPACING = 27;
+const STRING_END_X = STRING_START_X + (NUM_STRINGS - 1) * STRING_SPACING; // 177
 
 const NUT_Y = 32;
-const FRET_SPACING = 24;
-const FRETBOARD_BOTTOM_Y = NUT_Y + NUM_FRETS * FRET_SPACING; // 152
+const FRET_SPACING = 25;
+const FRETBOARD_BOTTOM_Y = NUT_Y + NUM_FRETS * FRET_SPACING; // 157
 
-const TOP_MARKER_Y = 18;
-const BOTTOM_LABEL_Y = 172;
+const TOP_MARKER_Y = 16;
+const BOTTOM_LABEL_Y = 176;
 
 function getStringX(index: number): number {
   return STRING_START_X + index * STRING_SPACING;
@@ -46,11 +46,15 @@ function stringNumberToIndex(stringNum: number): number {
   return 6 - Math.max(1, Math.min(6, stringNum));
 }
 
+function formatNoteGlyph(note: string): string {
+  return note.replace('#', '♯').replace('b', '♭');
+}
+
 /**
- * SVG-based Guitar Chord Diagram matching the Swan Glide video.
+ * SVG-based Guitar Chord Diagram matching the iconic UltraViolet Chorus visualizer.
  *
- * Displays nut/frets, barre pill, finger dots, top markers, and bottom note names,
- * alongside the Swan Glide watermark branding.
+ * Displays bone nut, fret wires, pearloid inlay dots, finger positions,
+ * string note badges, and subtle watermark branding.
  */
 export const GuitarFretboard: React.FC<GuitarFretboardProps> = ({
   voicing,
@@ -72,29 +76,44 @@ export const GuitarFretboard: React.FC<GuitarFretboardProps> = ({
   const isDark = preset.isDark;
   const mainColor = preset.textColor;
   const mutedColor = preset.textMutedColor;
-  const gridLineColor = isDark ? 'rgba(255, 255, 255, 0.22)' : 'rgba(46, 16, 77, 0.35)';
+  const gridLineColor = isDark
+    ? 'rgba(255, 255, 255, 0.20)'
+    : 'rgba(36, 10, 52, 0.22)';
+  const inlayDotColor = isDark
+    ? 'rgba(255, 255, 255, 0.12)'
+    : 'rgba(36, 10, 52, 0.08)';
+
+  // Inlay marker positions (3rd, 5th, 7th, 9th, 12th frets)
+  const fretCenterStringX = (getStringX(2) + getStringX(3)) / 2;
 
   return (
     <div
       className={clsx(
-        'w-full flex items-center justify-between px-6 sm:px-8 py-2 select-none transition-colors duration-300',
+        'w-full flex flex-col items-center justify-center px-4 py-1 select-none transition-colors duration-300',
         className
       )}
     >
-      {/* Left Column: GUITAR label and SVG Chord Box */}
-      <div className="flex flex-col items-center">
+      {/* Top Header Bar */}
+      <div className="w-full max-w-[280px] flex items-center justify-between px-1 mb-1">
         <span
-          className={clsx(
-            'text-[10px] sm:text-[11px] font-bold uppercase tracking-widest mb-1 transition-colors duration-200',
-            mutedColor
-          )}
+          className="text-[10px] font-bold tracking-widest uppercase transition-colors duration-200"
+          style={{ color: mutedColor }}
         >
-          GUITAR
+          GUITAR VOICING
         </span>
+        <span
+          className="text-[10px] font-semibold tracking-wide transition-colors duration-200"
+          style={{ color: mutedColor }}
+        >
+          {chordName}
+        </span>
+      </div>
 
+      {/* Centered High-Definition Guitar SVG */}
+      <div className="relative flex items-center justify-center">
         <svg
-          viewBox="0 0 186 186"
-          className="w-[155px] sm:w-[175px] h-auto overflow-visible"
+          viewBox="0 0 220 190"
+          className="w-[240px] sm:w-[260px] h-auto overflow-visible"
           aria-label={`Guitar chord diagram for ${chordName}`}
           role="img"
         >
@@ -105,34 +124,73 @@ export const GuitarFretboard: React.FC<GuitarFretboardProps> = ({
                 dy="1.5"
                 stdDeviation="1.5"
                 floodColor={mainColor}
-                floodOpacity={isDark ? '0.4' : '0.25'}
+                floodOpacity={isDark ? '0.45' : '0.22'}
+              />
+            </filter>
+
+            <filter id="nut-shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow
+                dx="0"
+                dy="1"
+                stdDeviation="1"
+                floodColor={mainColor}
+                floodOpacity={isDark ? '0.5' : '0.25'}
               />
             </filter>
           </defs>
 
+          {/* Fretboard Inlay Marker Dots (3, 5, 7, 9 relative to baseFret) */}
+          {[3, 5, 7, 9].map((absFret) => {
+            const relFret = absFret - baseFret + 1;
+            if (relFret >= 1 && relFret <= NUM_FRETS) {
+              return (
+                <circle
+                  key={`inlay-${absFret}`}
+                  cx={fretCenterStringX}
+                  cy={getFretCenterY(relFret)}
+                  r={3.5}
+                  fill={inlayDotColor}
+                />
+              );
+            }
+            return null;
+          })}
+
           {/* Fret position indicator (e.g. "3fr", "4fr") shown when baseFret > 1 */}
           {!isNutVisible && (
             <text
-              x={STRING_START_X - 8}
+              x={STRING_START_X - 10}
               y={getFretCenterY(1) + 4}
               textAnchor="end"
-              fill={mainColor}
+              fill={preset.accentColor}
               className="font-bold font-mono text-[11px] select-none"
             >
               {baseFret}fr
             </text>
           )}
 
-          {/* Top nut or fret line */}
-          <line
-            x1={STRING_START_X - (isNutVisible ? 1 : 0)}
-            y1={NUT_Y}
-            x2={STRING_END_X + (isNutVisible ? 1 : 0)}
-            y2={NUT_Y}
-            stroke={mainColor}
-            strokeWidth={isNutVisible ? 4.5 : 1.5}
-            strokeLinecap="round"
-          />
+          {/* Top nut or first fret line */}
+          {isNutVisible ? (
+            <rect
+              x={STRING_START_X - 2}
+              y={NUT_Y - 3}
+              width={STRING_END_X - STRING_START_X + 4}
+              height={5.5}
+              rx={2}
+              fill={mainColor}
+              filter="url(#nut-shadow)"
+            />
+          ) : (
+            <line
+              x1={STRING_START_X}
+              y1={NUT_Y}
+              x2={STRING_END_X}
+              y2={NUT_Y}
+              stroke={mainColor}
+              strokeWidth={2}
+              strokeLinecap="round"
+            />
+          )}
 
           {/* Horizontal fret lines */}
           {Array.from({ length: NUM_FRETS }).map((_, i) => {
@@ -150,10 +208,11 @@ export const GuitarFretboard: React.FC<GuitarFretboardProps> = ({
             );
           })}
 
-          {/* Vertical string lines */}
+          {/* Vertical string lines with realistic gauge gradation */}
           {Array.from({ length: NUM_STRINGS }).map((_, i) => {
             const x = getStringX(i);
-            const strokeWidth = 1.0 + (NUM_STRINGS - 1 - i) * 0.2;
+            // Low E (index 0) is thickest; High E (index 5) is slimmest
+            const strokeWidth = 1.0 + (NUM_STRINGS - 1 - i) * 0.25;
             return (
               <line
                 key={`string-line-${i}`}
@@ -175,10 +234,10 @@ export const GuitarFretboard: React.FC<GuitarFretboardProps> = ({
             const minIdx = Math.min(fromIdx, toIdx);
             const maxIdx = Math.max(fromIdx, toIdx);
 
-            const startX = getStringX(minIdx) - 7;
-            const endX = getStringX(maxIdx) + 7;
+            const startX = getStringX(minIdx) - 8;
+            const endX = getStringX(maxIdx) + 8;
             const pillWidth = endX - startX;
-            const pillHeight = 12;
+            const pillHeight = 13;
 
             const relFret = barre.fret - baseFret + 1;
             if (relFret < 1 || relFret > NUM_FRETS) {
@@ -215,7 +274,7 @@ export const GuitarFretboard: React.FC<GuitarFretboardProps> = ({
                     x2={x + 3.5}
                     y2={TOP_MARKER_Y + 3.5}
                     stroke={mutedColor}
-                    strokeWidth={1.6}
+                    strokeWidth={1.8}
                     strokeLinecap="round"
                   />
                   <line
@@ -224,7 +283,7 @@ export const GuitarFretboard: React.FC<GuitarFretboardProps> = ({
                     x2={x - 3.5}
                     y2={TOP_MARKER_Y + 3.5}
                     stroke={mutedColor}
-                    strokeWidth={1.6}
+                    strokeWidth={1.8}
                     strokeLinecap="round"
                   />
                 </g>
@@ -237,10 +296,10 @@ export const GuitarFretboard: React.FC<GuitarFretboardProps> = ({
                   key={`top-marker-${i}`}
                   cx={x}
                   cy={TOP_MARKER_Y}
-                  r={4}
+                  r={4.2}
                   fill="none"
                   stroke={mainColor}
-                  strokeWidth={1.6}
+                  strokeWidth={1.8}
                 />
               );
             }
@@ -263,15 +322,25 @@ export const GuitarFretboard: React.FC<GuitarFretboardProps> = ({
             const cy = getFretCenterY(relFret);
 
             return (
-              <circle
-                key={`finger-dot-${i}`}
-                cx={cx}
-                cy={cy}
-                r={6}
-                fill={mainColor}
-                filter="url(#fret-shadow)"
-                className="transition-all duration-200 ease-out"
-              />
+              <g key={`finger-dot-group-${i}`}>
+                {/* Enamel Dot with Shadow */}
+                <circle
+                  cx={cx}
+                  cy={cy}
+                  r={6.5}
+                  fill={mainColor}
+                  filter="url(#fret-shadow)"
+                  className="transition-all duration-200 ease-out"
+                />
+                {/* Subtle center glint */}
+                <circle
+                  cx={cx - 1.5}
+                  cy={cy - 1.5}
+                  r={1.8}
+                  fill="#FFFFFF"
+                  fillOpacity={0.65}
+                />
+              </g>
             );
           })}
 
@@ -286,40 +355,31 @@ export const GuitarFretboard: React.FC<GuitarFretboardProps> = ({
                 y={BOTTOM_LABEL_Y}
                 textAnchor="middle"
                 fill={isMuted ? mutedColor : mainColor}
-                className="text-[10px] font-semibold font-mono select-none transition-colors duration-200"
+                className="text-[10px] font-bold font-mono select-none transition-colors duration-200"
               >
-                {note}
+                {formatNoteGlyph(note)}
               </text>
             );
           })}
         </svg>
       </div>
 
-      {/* Right Column: "Made with Swan Glide by Swanek Audio" Branding */}
-      <div className="flex flex-col items-start justify-center pr-2 sm:pr-4">
+      {/* Subtle Bottom Attribution Pill */}
+      <div className="flex items-center gap-1.5 mt-0.5 opacity-65 hover:opacity-100 transition-opacity">
         <span
-          className="text-xs font-normal transition-colors duration-200"
+          className="text-[9px] font-medium tracking-wider"
           style={{ color: mutedColor }}
         >
-          Made with
+          SWAN GLIDE
+        </span>
+        <span className="text-[9px]" style={{ color: mutedColor }}>
+          •
         </span>
         <span
-          className="text-lg sm:text-xl font-bold tracking-tight transition-colors duration-200"
-          style={{ color: mainColor }}
-        >
-          Swan Glide
-        </span>
-        <span
-          className="text-xs font-medium transition-colors duration-200"
+          className="text-[9px] font-medium tracking-wider"
           style={{ color: mutedColor }}
         >
-          by Swanek Audio
-        </span>
-        <span
-          className="text-[11px] font-normal transition-colors duration-200 mt-0.5"
-          style={{ color: mutedColor }}
-        >
-          (Link In Bio)
+          @ultraviolet_chorus
         </span>
       </div>
     </div>

@@ -175,33 +175,33 @@ export const KeyboardDiagram: React.FC<KeyboardDiagramProps> = ({
         className,
       )}
     >
-      {/* Top Header: KEYBOARD label, chord badge, and Swan Glide branding */}
+      {/* Top Header: KEYBOARD label, chord badge, and UltraViolet Chorus branding */}
       <div className="w-full flex items-center justify-between mb-1.5 px-1">
         <div className="flex items-center gap-2">
           <span
             className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest transition-colors duration-200"
             style={{ color: mutedTextColor }}
           >
-            KEYBOARD
+            PIANO VOICING
           </span>
           <span
             className={clsx(
               'px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide transition-all shadow-sm',
               isDark
                 ? 'bg-white/10 text-white border border-white/15'
-                : 'bg-purple-900/10 text-[#2E104D] border border-purple-900/15',
+                : 'bg-purple-900/10 text-[#240A34] border border-purple-900/15',
             )}
           >
             {step.chordName}
           </span>
         </div>
 
-        <div className="flex flex-col items-end">
+        <div className="flex items-center gap-1 opacity-70 hover:opacity-100 transition-opacity">
           <span
-            className="text-[9px] sm:text-[10px] font-semibold tracking-tight transition-colors duration-200"
+            className="text-[9px] sm:text-[10px] font-semibold tracking-wider transition-colors duration-200"
             style={{ color: mutedTextColor }}
           >
-            Swan Glide by Swanek Audio
+            @ultraviolet_chorus
           </span>
         </div>
       </div>
@@ -289,12 +289,12 @@ export const KeyboardDiagram: React.FC<KeyboardDiagramProps> = ({
                     {/* Note name letter */}
                     <text
                       x={x + (whiteKeyWidth - 1) / 2}
-                      y={y + whiteKeyHeight - 6.8}
+                      y={y + whiteKeyHeight - 6.6}
                       textAnchor="middle"
                       fill={activeVoice.color}
-                      fontSize="5.8"
+                      fontSize="6.2"
                       fontWeight="800"
-                      fontFamily="system-ui, -apple-system, sans-serif"
+                      fontFamily="'Plus Jakarta Sans', system-ui, sans-serif"
                     >
                       {formatKeyGlyph(activeVoice.label.replace(/[0-9]/g, ''))}
                     </text>
