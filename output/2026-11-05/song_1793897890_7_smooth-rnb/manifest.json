@@ -1,0 +1,19 @@
+{
+  "title": "Late Night Call (in G)",
+  "mood": "smooth-rnb",
+  "key": "G",
+  "bpm": 72,
+  "instrument": "guitar",
+  "theme": "dark",
+  "chordNames": [
+    "Am9",
+    "D13",
+    "Gmaj9",
+    "E7(#9)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-05T16:58:34.992Z"
+}

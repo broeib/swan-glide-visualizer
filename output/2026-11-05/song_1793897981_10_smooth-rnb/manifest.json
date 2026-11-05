@@ -1,0 +1,21 @@
+{
+  "title": "Sunday Sunset (in Db)",
+  "mood": "smooth-rnb",
+  "key": "Db",
+  "bpm": 69,
+  "instrument": "piano",
+  "theme": "cream",
+  "chordNames": [
+    "Dbmaj9",
+    "Emaj9",
+    "Ebm9",
+    "Ab13",
+    "Gbm9",
+    "Dbmaj9"
+  ],
+  "totalBeats": 20,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-05T17:00:15.719Z"
+}

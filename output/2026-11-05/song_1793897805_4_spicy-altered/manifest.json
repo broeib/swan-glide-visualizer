@@ -1,0 +1,20 @@
+{
+  "title": "Altered Smoke (in Db)",
+  "mood": "spicy-altered",
+  "key": "Db",
+  "bpm": 68,
+  "instrument": "piano",
+  "theme": "cream",
+  "chordNames": [
+    "Ebm9",
+    "D7(#9)",
+    "Dbmaj9",
+    "Bb7(b13)",
+    "E7(#9)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-05T16:57:13.542Z"
+}

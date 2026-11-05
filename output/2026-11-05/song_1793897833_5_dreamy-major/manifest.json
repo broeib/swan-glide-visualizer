@@ -1,0 +1,20 @@
+{
+  "title": "Lydian Shimmer (in Eb)",
+  "mood": "dreamy-major",
+  "key": "Eb",
+  "bpm": 67,
+  "instrument": "guitar",
+  "theme": "sunset",
+  "chordNames": [
+    "Ebmaj9",
+    "Fm9",
+    "Bb13",
+    "Gm7",
+    "Abmaj7(#11)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-05T16:57:41.647Z"
+}
