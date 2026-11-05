@@ -35,7 +35,11 @@ export function generateProgression(
     'dreamy-major';
 
   // 2. Select cadence template
-  const template = selectTemplate(mood, options?.chordCount);
+  const template = selectTemplate(
+    mood,
+    options?.chordCount,
+    options?.templateId,
+  );
 
   // 3. Select key center
   const key: PitchClass =

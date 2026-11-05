@@ -23,7 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 
-# Pipeline generated output
-output/*
-!output/.gitkeep
+# Pipeline generated output logs and temporary audio
+output/**/*.log
+output/*.log
+output/**/*.wav
+output/*.wav
+output/**/temp_*
 

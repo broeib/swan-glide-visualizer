@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "verify:audio": "tsx src/engine/audio/__tests__/verifyOfflineAudio.ts",
     "pipeline:generate": "node scripts/run-pipeline.js",
+    "pipeline:daily": "bash scripts/daily-pipeline.sh",
     "pipeline:enable": "bash scripts/pipeline-enable.sh",
     "pipeline:disable": "bash scripts/pipeline-disable.sh"
   },

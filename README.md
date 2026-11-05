@@ -37,30 +37,40 @@ Use the interactive control toolbar to generate new songs, toggle between Guitar
 
 ### Automated Video Generation Pipeline
 
-#### 1. On-Demand Video Generation
+#### 1. Daily Video Batch Execution (10 Videos)
 
-Generate videos manually at any time without activating background jobs:
+Generate 10 diversified neo-soul video visualizers, update the markdown gallery, and automatically commit and push to GitHub:
 
 ```bash
-# Generate 1 video with random mood, instrument, and theme
-npm run pipeline:generate
+# Run the daily 10-video pipeline and push to GitHub
+npm run pipeline:daily
 
-# Generate 3 videos with specific musical parameters
-npm run pipeline:generate -- --count 3 --mood dreamy-major --instrument piano --theme dark
+# Or generate on-demand with custom parameters
+npm run pipeline:generate -- --count 10
 ```
 
-Output files are stored in `output/YYYY-MM-DD/song_<timestamp>_<archetype>/`:
-- `video.mp4`: Broadcast-ready 1080x1920 60FPS vertical video.
-- `cover.jpg`: High-resolution cover thumbnail image.
-- `caption.txt`: Instagram caption with song title, key, tempo, chord breakdown, and hashtags.
-- `manifest.json`: Structured song metadata.
+Each video in the daily set of 10 is automatically diversified:
+- **Balanced Moods**: Distributed across `dreamy-major`, `melancholy-minor`, `spicy-altered`, and `smooth-rnb`.
+- **Alternating Instruments**: 5 guitar fretboards and 5 piano keyboards.
+- **Rotating Themes**: Balanced across the 5 visual presets (`pastel`, `dark`, `sunset`, `lofi`, `cream`).
+- **Unique Progressions**: Different cadence templates and pitch centers for every video.
 
-#### 2. Scheduled Daily Cron Job (OFF by default)
+#### 2. Viewing Videos on GitHub
 
-To activate automatic daily video generation on your always-on VM (runs daily at 09:00 UTC and cleans up files older than 30 days):
+All generated bundles are cataloged in [`output/README.md`](./output/README.md). When pushed to GitHub:
+- Click into [`output/`](./output/) or any date directory to see video cover thumbnails, chord breakdowns, and metadata.
+- Click any cover thumbnail or **"Watch Video"** link to play the 1080x1920 60FPS MP4 video directly inside GitHub's built-in web player.
+
+#### 3. Automation Options
+
+##### Option A: Cloud Automation via GitHub Actions (Recommended)
+The repository includes [`.github/workflows/daily-pipeline.yml`](./.github/workflows/daily-pipeline.yml). It automatically triggers every day at 09:00 UTC, renders 10 videos in headless Chromium, commits the bundles, and pushes them back to `main`. You can also trigger it manually from GitHub's **Actions** tab with one click.
+
+##### Option B: Local Machine / Server Cron Job
+To activate automatic daily video generation on your local machine or server:
 
 ```bash
-# Enable the daily cron job
+# Enable the daily cron job (runs daily at 09:00 UTC and pushes to git)
 npm run pipeline:enable
 
 # Disable the daily cron job at any time

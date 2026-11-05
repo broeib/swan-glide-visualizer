@@ -1,0 +1,59 @@
+name: Daily Video Pipeline
+
+on:
+  schedule:
+    # Runs automatically every day at 09:00 UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    inputs:
+      count:
+        description: 'Number of videos to render'
+        required: false
+        default: '10'
+
+jobs:
+  generate-daily-videos:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install FFmpeg & Linux libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg libxss1 libnss3 libatk-bridge2.0-0 libgtk-3-0
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Render daily video visualizers
+        env:
+          COUNT: ${{ github.event.inputs.count || '10' }}
+        run: |
+          node scripts/run-pipeline.js --count "${COUNT}"
+
+      - name: Commit and push daily videos
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output/
+          if git diff --staged --quiet; then
+            echo "No new videos to commit."
+          else
+            DATE_STR="$(date -u '+%Y-%m-%d')"
+            git commit -m "chore(daily): publish 10 daily video visualizers [${DATE_STR}]"
+            git pull --rebase origin main || true
+            git push origin main
+            echo "✅ Videos pushed successfully!"
+          fi

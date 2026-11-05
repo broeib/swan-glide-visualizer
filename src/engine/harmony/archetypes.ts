@@ -353,11 +353,13 @@ export function getArchetypeTemplates(mood: MoodArchetype): CadenceTemplate[] {
 }
 
 /**
- * Selects an optimal cadence template for the requested mood and chord count.
+ * Selects an optimal cadence template for the requested mood and chord count,
+ * or retrieves a specific template by ID.
  */
 export function selectTemplate(
   mood: MoodArchetype,
   targetChordCount?: number,
+  templateId?: string,
 ): CadenceTemplate {
   const templates = getArchetypeTemplates(mood);
   if (templates.length === 0) {
@@ -366,6 +368,13 @@ export function selectTemplate(
       throw new Error('No cadence templates available');
     }
     return fallback;
+  }
+
+  if (templateId) {
+    const match = templates.find((tpl) => tpl.id === templateId);
+    if (match) {
+      return match;
+    }
   }
 
   if (targetChordCount !== undefined) {

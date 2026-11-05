@@ -1,11 +1,16 @@
 import path from 'path';
 import { generateProgression } from '../engine/harmony/generator';
-import { MoodArchetype } from '../engine/harmony/types';
+import {
+  AUTHENTIC_KEY_CENTERS,
+  getArchetypeTemplates,
+} from '../engine/harmony/archetypes';
+import { MoodArchetype, PitchClass } from '../engine/harmony/types';
 import { THEME_PRESETS_LIST } from '../engine/themes/themePresets';
 import {
   createBundleDirectory,
   generateTrackTitle,
   writePublishingBundle,
+  updateGalleryIndex,
   SocialBundleMetadata
 } from './socialBundler';
 import { renderVideo } from './videoMuxer';
@@ -14,7 +19,7 @@ import { renderVideo } from './videoMuxer';
  * CLI and programmatic options for batch pipeline generation.
  */
 export interface PipelineRunOptions {
-  /** Number of songs to generate and render (default: 3). */
+  /** Number of songs to generate and render (default: 10). */
   count?: number;
   /** Mood archetype filter ('dreamy-major', 'melancholy-minor', 'spicy-altered', 'smooth-rnb', or 'random'). */
   mood?: string;
@@ -82,6 +87,79 @@ function resolveTheme(requestedTheme?: string): string {
   return randomPreset.id;
 }
 
+interface BatchPlanItem {
+  mood: MoodArchetype;
+  instrument: 'guitar' | 'piano';
+  theme: string;
+  key: PitchClass;
+  templateId?: string;
+}
+
+/**
+ * Creates a balanced, high-diversity plan across a batch of video renders.
+ * Guarantees distinct keys, unique templates, balanced instruments, and rotating visual themes.
+ */
+function planBatch(count: number, options: PipelineRunOptions): BatchPlanItem[] {
+  const shuffle = <T>(arr: readonly T[] | T[]): T[] =>
+    [...arr].sort(() => Math.random() - 0.5);
+
+  const allThemes = THEME_PRESETS_LIST.map((t) => t.id);
+  const usedTemplates = new Set<string>();
+
+  // Prepare balanced pools
+  let moodPool: MoodArchetype[] = [];
+  while (moodPool.length < count) {
+    moodPool = moodPool.concat(shuffle(SUPPORTED_MOODS));
+  }
+
+  let themePool: string[] = [];
+  while (themePool.length < count) {
+    themePool = themePool.concat(shuffle(allThemes));
+  }
+
+  let keyPool: PitchClass[] = [];
+  while (keyPool.length < count) {
+    keyPool = keyPool.concat(shuffle(AUTHENTIC_KEY_CENTERS));
+  }
+
+  const items: BatchPlanItem[] = [];
+
+  for (let i = 0; i < count; i++) {
+    const mood = options.mood && options.mood !== 'random'
+      ? resolveMood(options.mood)
+      : moodPool[i]!;
+
+    const instrument: 'guitar' | 'piano' = options.instrument && options.instrument !== 'random'
+      ? resolveInstrument(options.instrument)
+      : (i % 2 === 0 ? 'guitar' : 'piano');
+
+    const theme = options.theme && options.theme !== 'random'
+      ? resolveTheme(options.theme)
+      : themePool[i]!;
+
+    const key = keyPool[i]!;
+
+    // Select unique cadence template for this mood if possible
+    const availableTemplates = getArchetypeTemplates(mood);
+    const unused = availableTemplates.filter((t) => !usedTemplates.has(t.id));
+    const chosenTemplate = unused.length > 0
+      ? unused[Math.floor(Math.random() * unused.length)]!
+      : availableTemplates[Math.floor(Math.random() * availableTemplates.length)]!;
+
+    usedTemplates.add(chosenTemplate.id);
+
+    items.push({
+      mood,
+      instrument,
+      theme,
+      key,
+      templateId: chosenTemplate.id
+    });
+  }
+
+  return items;
+}
+
 /**
  * Executes batch pipeline generation producing ready-to-publish social bundles.
  */
@@ -95,7 +173,7 @@ export async function runPipeline(options: PipelineRunOptions = {}): Promise<{
     title: string;
   }>;
 }> {
-  const count = options.count ?? 3;
+  const count = options.count ?? 10;
   const outputDir = options.outputDir ?? 'output';
   const durationBeats = options.durationBeats;
   const verbose = options.verbose ?? true;
@@ -104,9 +182,9 @@ export async function runPipeline(options: PipelineRunOptions = {}): Promise<{
     console.log('====================================================');
     console.log('🕊️  Swan Glide Video Pipeline: Starting Batch Run');
     console.log(`   Count: ${count}`);
-    console.log(`   Requested Mood: ${options.mood || 'random'}`);
-    console.log(`   Requested Instrument: ${options.instrument || 'random'}`);
-    console.log(`   Requested Theme: ${options.theme || 'random'}`);
+    console.log(`   Requested Mood: ${options.mood || 'random (auto-diversified)'}`);
+    console.log(`   Requested Instrument: ${options.instrument || 'random (auto-diversified)'}`);
+    console.log(`   Requested Theme: ${options.theme || 'random (auto-diversified)'}`);
     console.log(`   Output Directory: ${outputDir}`);
     if (durationBeats) {
       console.log(`   Duration Limit: ${durationBeats} beats (Test Mode)`);
@@ -114,13 +192,13 @@ export async function runPipeline(options: PipelineRunOptions = {}): Promise<{
     console.log('====================================================\n');
   }
 
+  const batchPlan = planBatch(count, options);
   const generatedBundles = [];
 
   for (let i = 0; i < count; i++) {
     const songIndex = i + 1;
-    const mood = resolveMood(options.mood);
-    const instrument = resolveInstrument(options.instrument);
-    const theme = resolveTheme(options.theme);
+    const plan = batchPlan[i]!;
+    const { mood, instrument, theme, key, templateId } = plan;
 
     if (verbose) {
       console.log(`[${songIndex}/${count}] Generating procedural harmony...`);
@@ -129,8 +207,12 @@ export async function runPipeline(options: PipelineRunOptions = {}): Promise<{
       console.log(`      Theme: ${theme}`);
     }
 
-    // 1. Procedural harmony generation
-    const timeline = generateProgression({ mood });
+    // 1. Procedural harmony generation with unique key and template
+    const timeline = generateProgression({
+      mood,
+      key,
+      templateId
+    });
     const title = generateTrackTitle(mood, timeline.metadata.key);
 
     if (verbose) {
@@ -140,7 +222,7 @@ export async function runPipeline(options: PipelineRunOptions = {}): Promise<{
     }
 
     // 2. Prepare publishing bundle directory
-    const { folderPath } = createBundleDirectory(outputDir, mood);
+    const { folderPath } = createBundleDirectory(outputDir, mood, songIndex);
     const videoDestPath = path.join(folderPath, 'video.mp4');
     const coverDestPath = path.join(folderPath, 'cover.jpg');
 
@@ -204,6 +286,16 @@ export async function runPipeline(options: PipelineRunOptions = {}): Promise<{
       captionPath: bundleFiles.captionPath,
       title
     });
+  }
+
+  // 5. Update Markdown Gallery Documentation for GitHub Viewing
+  try {
+    updateGalleryIndex(outputDir);
+    if (verbose) {
+      console.log('📖 Gallery index README updated for GitHub browsing.');
+    }
+  } catch (err) {
+    console.error('Warning: Failed to update gallery index:', err);
   }
 
   if (verbose) {

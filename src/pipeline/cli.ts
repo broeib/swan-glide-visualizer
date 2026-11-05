@@ -5,7 +5,7 @@ import { runPipeline, PipelineRunOptions } from './pipelineRunner';
  */
 export function parseArgs(args: string[]): PipelineRunOptions {
   const options: PipelineRunOptions = {
-    count: 3,
+    count: 10,
     outputDir: 'output'
   };
 
@@ -13,8 +13,8 @@ export function parseArgs(args: string[]): PipelineRunOptions {
     const arg = args[i]!;
 
     if (arg === '--count' || arg === '-c') {
-      const val = parseInt(args[++i] || '3', 10);
-      options.count = isNaN(val) ? 3 : val;
+      const val = parseInt(args[++i] || '10', 10);
+      options.count = isNaN(val) ? 10 : val;
     } else if (arg === '--mood' || arg === '-m') {
       options.mood = args[++i];
     } else if (arg === '--instrument' || arg === '-i') {

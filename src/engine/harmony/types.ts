@@ -72,6 +72,8 @@ export interface GenerateProgressionOptions {
   bpm?: number;
   /** Target chord count (4 to 8). When specified, selects or trims matching templates. */
   chordCount?: number;
+  /** Optional explicit template identifier to guarantee variety. */
+  templateId?: string;
 }
 
 /**

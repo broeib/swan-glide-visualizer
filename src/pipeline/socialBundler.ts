@@ -132,7 +132,8 @@ export function generateCaptionText(metadata: SocialBundleMetadata): string {
  */
 export function createBundleDirectory(
   baseOutputDir: string = 'output',
-  archetype: string = 'dreamy-major'
+  archetype: string = 'dreamy-major',
+  indexHint?: number
 ): { folderPath: string; folderName: string; dateFolder: string } {
   const now = new Date();
   const year = now.getFullYear();
@@ -142,9 +143,17 @@ export function createBundleDirectory(
 
   const timestamp = Math.floor(now.getTime() / 1000);
   const cleanArchetype = archetype.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  const folderName = `song_${timestamp}_${cleanArchetype}`;
+  const suffix = indexHint !== undefined ? `_${indexHint}` : '';
+  let folderName = `song_${timestamp}${suffix}_${cleanArchetype}`;
+  let fullPath = path.resolve(baseOutputDir, dateFolder, folderName);
 
-  const fullPath = path.resolve(baseOutputDir, dateFolder, folderName);
+  let counter = 1;
+  while (fs.existsSync(fullPath)) {
+    folderName = `song_${timestamp}_${counter}_${cleanArchetype}`;
+    fullPath = path.resolve(baseOutputDir, dateFolder, folderName);
+    counter++;
+  }
+
   fs.mkdirSync(fullPath, { recursive: true });
 
   return {
@@ -219,4 +228,118 @@ export function writePublishingBundle(
     captionPath,
     manifestPath
   };
+}
+
+/**
+ * Regenerates gallery README documentation for GitHub browsing.
+ */
+export function updateGalleryIndex(baseOutputDir: string = 'output'): void {
+  const rootDir = path.resolve(process.cwd(), baseOutputDir);
+  if (!fs.existsSync(rootDir)) {
+    return;
+  }
+
+  const entries = fs.readdirSync(rootDir, { withFileTypes: true });
+  const dateDirs = entries
+    .filter((e) => e.isDirectory() && /^\d{4}-\d{2}-\d{2}$/.test(e.name))
+    .map((e) => e.name)
+    .sort()
+    .reverse();
+
+  if (dateDirs.length === 0) {
+    return;
+  }
+
+  const allDateBundles: Record<string, any[]> = {};
+
+  for (const dateDir of dateDirs) {
+    const fullDatePath = path.join(rootDir, dateDir);
+    const subEntries = fs.readdirSync(fullDatePath, { withFileTypes: true });
+    const bundles: any[] = [];
+
+    for (const sub of subEntries) {
+      if (!sub.isDirectory()) continue;
+      const manifestPath = path.join(fullDatePath, sub.name, 'manifest.json');
+      if (fs.existsSync(manifestPath)) {
+        try {
+          const raw = fs.readFileSync(manifestPath, 'utf8');
+          const data = JSON.parse(raw);
+          bundles.push({
+            folderName: sub.name,
+            ...data
+          });
+        } catch {
+          // Ignore parse errors on incomplete renders
+        }
+      }
+    }
+
+    // Sort bundles chronologically
+    bundles.sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
+    allDateBundles[dateDir] = bundles;
+
+    // Generate daily README.md
+    if (bundles.length > 0) {
+      const dailyRows = bundles.map((b, idx) => {
+        const instIcon = b.instrument === 'piano' ? '🎹 Piano' : '🎸 Guitar';
+        const chordStr = Array.isArray(b.chordNames)
+          ? b.chordNames.map((c: string) => `\`${c}\``).join(' → ')
+          : '';
+        return `| **${idx + 1}** | <a href="./${b.folderName}/${b.videoFile}"><img src="./${b.folderName}/${b.coverFile}" width="160" alt="${b.title}"/></a><br>[▶️ **Watch Video**](./${b.folderName}/${b.videoFile}) | **${b.title}**<br>• Mood: \`${b.mood}\`<br>• Key: **${b.key}**<br>• Tempo: ${b.bpm} BPM | ${instIcon}<br>🎨 Preset: \`${b.theme}\` | ${chordStr} |`;
+      });
+
+      const dailyReadme = [
+        `# 🕊️ Swan Glide Visualizers: ${dateDir}`,
+        '',
+        `Daily procedural neo-soul video collection featuring authentic voice-leading, harmonic analysis, and lush instrument diagrams.`,
+        '',
+        `Total Videos: **${bundles.length}**`,
+        '',
+        `| # | Video Preview | Track & Harmony | Instrument & Theme | Chord Progression |`,
+        `| :---: | :--- | :--- | :--- | :--- |`,
+        ...dailyRows,
+        '',
+        `[← Back to Main Gallery](../README.md)`,
+        ''
+      ].join('\n');
+
+      fs.writeFileSync(path.join(fullDatePath, 'README.md'), dailyReadme, 'utf8');
+    }
+  }
+
+  // Generate root output/README.md
+  const archiveLinks = dateDirs
+    .map((d) => `- [**${d}**](./${d}/README.md) (${(allDateBundles[d] || []).length} videos)`)
+    .join('\n');
+
+  const latestDate = dateDirs[0]!;
+  const latestBundles = allDateBundles[latestDate] || [];
+
+  const latestRows = latestBundles.map((b, idx) => {
+    const instIcon = b.instrument === 'piano' ? '🎹 Piano' : '🎸 Guitar';
+    const chordStr = Array.isArray(b.chordNames)
+      ? b.chordNames.map((c: string) => `\`${c}\``).join(' → ')
+      : '';
+    return `| **${idx + 1}** | <a href="./${latestDate}/${b.folderName}/${b.videoFile}"><img src="./${latestDate}/${b.folderName}/${b.coverFile}" width="160" alt="${b.title}"/></a><br>[▶️ **Watch Video**](./${latestDate}/${b.folderName}/${b.videoFile}) | **${b.title}**<br>• Mood: \`${b.mood}\`<br>• Key: **${b.key}**<br>• Tempo: ${b.bpm} BPM | ${instIcon}<br>🎨 Preset: \`${b.theme}\` | ${chordStr} |`;
+  });
+
+  const rootReadme = [
+    `# 🕊️ Swan Glide Video Visualizer Gallery`,
+    '',
+    `Automated daily collection of procedural neo-soul jazz visualizers generated with the Swan Glide headless pipeline.`,
+    '',
+    `## 📅 Daily Archives`,
+    archiveLinks,
+    '',
+    `## ✨ Latest Daily Showcase (${latestDate})`,
+    '',
+    `| # | Video Preview | Track & Harmony | Instrument & Theme | Chord Progression |`,
+    `| :---: | :--- | :--- | :--- | :--- |`,
+    ...latestRows,
+    '',
+    `*All videos rendered at 1080x1920 60FPS with 48kHz synthesized audio.*`,
+    ''
+  ].join('\n');
+
+  fs.writeFileSync(path.join(rootDir, 'README.md'), rootReadme, 'utf8');
 }

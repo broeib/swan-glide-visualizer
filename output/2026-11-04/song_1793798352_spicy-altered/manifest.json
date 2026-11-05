@@ -1,0 +1,20 @@
+{
+  "title": "Neon Midnight (in C)",
+  "mood": "spicy-altered",
+  "key": "C",
+  "bpm": 68,
+  "instrument": "piano",
+  "theme": "dark",
+  "chordNames": [
+    "Dm9",
+    "Db7(#9)",
+    "Cmaj9",
+    "A7(b13)",
+    "Eb7(#9)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-04T13:19:55.106Z"
+}
