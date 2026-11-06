@@ -1,0 +1,21 @@
+🎵 Tritone Whispers (in C)
+Mood: Spicy Altered | Key: C | Tempo: 64 BPM
+
+Harmonic Progression Breakdown:
+  1. Cmaj9
+  2. B7(#9)
+  3. Em9
+  4. Dm9
+  5. G13
+  6. Cmaj7(#11)
+  7. B7(b13)
+
+Voice-Leading Analysis:
+Minimal displacement voice-leading averaging 0.7 semitones per voice. Upper soprano maintains a lyrical melodic contour while inner tenor voices hold guide-tone anchors.
+
+About this progression:
+The authentic Swan Glide reference cadence featuring Hendrix 7(#9), 7(b13), and Lydian #11 shifts.
+
+Rendered with Swan Glide Visualizer 🕊️✨
+
+#neosoul #chords #jazzharmony #pianochords #guitarchords #musictheory #swanglide #ultravioletchorus

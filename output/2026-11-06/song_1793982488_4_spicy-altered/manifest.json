@@ -1,0 +1,19 @@
+{
+  "title": "After Hours Jazz (in Bb)",
+  "mood": "spicy-altered",
+  "key": "Bb",
+  "bpm": 66,
+  "instrument": "piano",
+  "theme": "pastel",
+  "chordNames": [
+    "Bbmaj9",
+    "Db7(#9)",
+    "Cm9",
+    "B7(b13)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-06T16:28:45.294Z"
+}

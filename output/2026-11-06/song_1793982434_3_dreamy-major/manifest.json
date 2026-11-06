@@ -1,0 +1,23 @@
+{
+  "title": "Sunlit Waves (in Eb)",
+  "mood": "dreamy-major",
+  "key": "Eb",
+  "bpm": 65,
+  "instrument": "guitar",
+  "theme": "dark",
+  "chordNames": [
+    "Ebmaj9",
+    "Fm9",
+    "Gm7",
+    "Abmaj7(#11)",
+    "Cm9",
+    "Bb13",
+    "Abmaj9",
+    "Eb6/9"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-06T16:28:08.826Z"
+}
