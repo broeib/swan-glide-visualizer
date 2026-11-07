@@ -1,0 +1,23 @@
+{
+  "title": "Spicy Diminished (in Db)",
+  "mood": "spicy-altered",
+  "key": "Db",
+  "bpm": 70,
+  "instrument": "guitar",
+  "theme": "lofi",
+  "chordNames": [
+    "Dbmaj9",
+    "E7(#9)",
+    "Ebm9",
+    "Ab7(#9)",
+    "Fm9",
+    "Bb7(b13)",
+    "Ebm9",
+    "D7(b13)"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-07T15:20:08.178Z"
+}

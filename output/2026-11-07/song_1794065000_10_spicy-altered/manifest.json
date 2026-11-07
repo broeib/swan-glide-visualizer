@@ -1,0 +1,20 @@
+{
+  "title": "After Hours Jazz (in G)",
+  "mood": "spicy-altered",
+  "key": "G",
+  "bpm": 68,
+  "instrument": "piano",
+  "theme": "pastel",
+  "chordNames": [
+    "Am9",
+    "G#7(#9)",
+    "Gmaj9",
+    "E7(b13)",
+    "A#7(#9)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-07T15:24:01.944Z"
+}

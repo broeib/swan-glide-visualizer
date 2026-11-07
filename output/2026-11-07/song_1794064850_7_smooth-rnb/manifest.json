@@ -1,0 +1,21 @@
+{
+  "title": "Warm Rhodes Breeze (in Eb)",
+  "mood": "smooth-rnb",
+  "key": "Eb",
+  "bpm": 67,
+  "instrument": "guitar",
+  "theme": "sunset",
+  "chordNames": [
+    "Ebmaj9",
+    "Abmaj9",
+    "Gm7",
+    "Cm9",
+    "Fm9",
+    "Bb13"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-07T15:21:52.906Z"
+}

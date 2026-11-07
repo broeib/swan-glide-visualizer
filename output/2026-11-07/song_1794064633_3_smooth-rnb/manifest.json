@@ -1,0 +1,21 @@
+{
+  "title": "Warm Rhodes Breeze (in F)",
+  "mood": "smooth-rnb",
+  "key": "F",
+  "bpm": 69,
+  "instrument": "guitar",
+  "theme": "sunset",
+  "chordNames": [
+    "Fmaj9",
+    "Abmaj9",
+    "Gm9",
+    "C13",
+    "Bbm9",
+    "Fmaj9"
+  ],
+  "totalBeats": 20,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-07T15:18:04.317Z"
+}

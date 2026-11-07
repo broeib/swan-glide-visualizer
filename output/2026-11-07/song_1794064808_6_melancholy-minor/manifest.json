@@ -1,0 +1,19 @@
+{
+  "title": "Autumn Raindrops (in G)",
+  "mood": "melancholy-minor",
+  "key": "G",
+  "bpm": 65,
+  "instrument": "piano",
+  "theme": "lofi",
+  "chordNames": [
+    "Gm9",
+    "Gmin-maj7",
+    "Gm7",
+    "Cm9"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-07T15:20:50.654Z"
+}

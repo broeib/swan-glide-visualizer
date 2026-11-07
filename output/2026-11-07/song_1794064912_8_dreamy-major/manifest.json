@@ -1,0 +1,19 @@
+{
+  "title": "Celestial Drift (in Db)",
+  "mood": "dreamy-major",
+  "key": "Db",
+  "bpm": 68,
+  "instrument": "piano",
+  "theme": "cream",
+  "chordNames": [
+    "Db6/9",
+    "Gbmaj7(#11)",
+    "Bmaj9",
+    "Dbmaj9"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-07T15:22:34.574Z"
+}
