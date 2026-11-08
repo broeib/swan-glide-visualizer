@@ -1,0 +1,23 @@
+{
+  "title": "Morning Silk (in F)",
+  "mood": "dreamy-major",
+  "key": "F",
+  "bpm": 65,
+  "instrument": "guitar",
+  "theme": "pastel",
+  "chordNames": [
+    "Fmaj9",
+    "Gm9",
+    "Am7",
+    "Bbmaj7(#11)",
+    "Dm9",
+    "C13",
+    "Bbmaj9",
+    "F6/9"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-08T15:39:36.603Z"
+}

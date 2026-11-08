@@ -1,0 +1,22 @@
+{
+  "title": "Paper Lanterns (in G)",
+  "mood": "melancholy-minor",
+  "key": "G",
+  "bpm": 65,
+  "instrument": "guitar",
+  "theme": "dark",
+  "chordNames": [
+    "Gm9",
+    "Gmin-maj7",
+    "Gm7",
+    "Cm9",
+    "Am7b5",
+    "D7(b13)",
+    "Gm11"
+  ],
+  "totalBeats": 20,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-08T15:40:58.627Z"
+}

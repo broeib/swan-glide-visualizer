@@ -1,0 +1,21 @@
+{
+  "title": "Warm Rhodes Breeze (in C)",
+  "mood": "smooth-rnb",
+  "key": "C",
+  "bpm": 67,
+  "instrument": "guitar",
+  "theme": "dark",
+  "chordNames": [
+    "Cmaj9",
+    "Fmaj9",
+    "Em7",
+    "Am9",
+    "Dm9",
+    "G13"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-08T15:43:06.250Z"
+}

@@ -1,0 +1,20 @@
+{
+  "title": "Shadows in Db (in Eb)",
+  "mood": "melancholy-minor",
+  "key": "Eb",
+  "bpm": 67,
+  "instrument": "piano",
+  "theme": "pastel",
+  "chordNames": [
+    "Ebm9",
+    "Abm11",
+    "Bmaj7(#11)",
+    "Fm7b5",
+    "Bb7(b13)"
+  ],
+  "totalBeats": 18,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-08T15:42:25.332Z"
+}
