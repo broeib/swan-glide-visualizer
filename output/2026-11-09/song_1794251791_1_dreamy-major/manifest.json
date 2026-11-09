@@ -1,0 +1,19 @@
+{
+  "title": "Morning Silk (in Eb)",
+  "mood": "dreamy-major",
+  "key": "Eb",
+  "bpm": 65,
+  "instrument": "guitar",
+  "theme": "lofi",
+  "chordNames": [
+    "Ebmaj9",
+    "Abmaj7(#11)",
+    "Gm7",
+    "Cm9"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-09T19:17:00.362Z"
+}

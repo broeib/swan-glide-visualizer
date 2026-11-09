@@ -1,0 +1,19 @@
+{
+  "title": "Distant Blue (in F)",
+  "mood": "melancholy-minor",
+  "key": "F",
+  "bpm": 66,
+  "instrument": "guitar",
+  "theme": "dark",
+  "chordNames": [
+    "Fm9",
+    "Dbmaj7",
+    "Gm7b5",
+    "C7(b13)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-09T19:18:16.004Z"
+}

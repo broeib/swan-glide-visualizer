@@ -1,0 +1,21 @@
+{
+  "title": "Altered Smoke (in Db)",
+  "mood": "spicy-altered",
+  "key": "Db",
+  "bpm": 65,
+  "instrument": "piano",
+  "theme": "sunset",
+  "chordNames": [
+    "Dbmaj9",
+    "Bb7(#9)",
+    "Ebm9",
+    "Ab7(alt)",
+    "D7(b13)",
+    "Dbmaj7(#11)"
+  ],
+  "totalBeats": 22,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-09T19:19:01.197Z"
+}

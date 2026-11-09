@@ -1,0 +1,22 @@
+{
+  "title": "Chromatic Glide (in C)",
+  "mood": "spicy-altered",
+  "key": "C",
+  "bpm": 64,
+  "instrument": "piano",
+  "theme": "lofi",
+  "chordNames": [
+    "Cmaj9",
+    "B7(#9)",
+    "Em9",
+    "Dm9",
+    "G13",
+    "Cmaj7(#11)",
+    "B7(b13)"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-09T19:22:38.155Z"
+}

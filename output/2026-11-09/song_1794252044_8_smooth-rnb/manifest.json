@@ -1,0 +1,21 @@
+{
+  "title": "Slow Motion Love (in Bb)",
+  "mood": "smooth-rnb",
+  "key": "Bb",
+  "bpm": 69,
+  "instrument": "piano",
+  "theme": "cream",
+  "chordNames": [
+    "Bbmaj9",
+    "Dbmaj9",
+    "Cm9",
+    "F13",
+    "Ebm9",
+    "Bbmaj9"
+  ],
+  "totalBeats": 20,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-09T19:21:20.180Z"
+}

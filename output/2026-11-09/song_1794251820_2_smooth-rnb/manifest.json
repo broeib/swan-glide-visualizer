@@ -1,0 +1,21 @@
+{
+  "title": "Warm Rhodes Breeze (in Bb)",
+  "mood": "smooth-rnb",
+  "key": "Bb",
+  "bpm": 67,
+  "instrument": "piano",
+  "theme": "pastel",
+  "chordNames": [
+    "Bbmaj9",
+    "Ebmaj9",
+    "Dm7",
+    "Gm9",
+    "Cm9",
+    "F13"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-09T19:17:46.339Z"
+}

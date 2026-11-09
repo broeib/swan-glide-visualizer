@@ -1,0 +1,19 @@
+{
+  "title": "Tritone Whispers (in C)",
+  "mood": "spicy-altered",
+  "key": "C",
+  "bpm": 66,
+  "instrument": "guitar",
+  "theme": "dark",
+  "chordNames": [
+    "Cmaj9",
+    "Eb7(#9)",
+    "Dm9",
+    "Db7(b13)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-09T19:20:44.419Z"
+}
