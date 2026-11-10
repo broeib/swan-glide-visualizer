@@ -1,0 +1,19 @@
+{
+  "title": "Altered Smoke (in F)",
+  "mood": "spicy-altered",
+  "key": "F",
+  "bpm": 66,
+  "instrument": "piano",
+  "theme": "cream",
+  "chordNames": [
+    "Fmaj9",
+    "Ab7(#9)",
+    "Gm9",
+    "Gb7(b13)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-10T16:43:34.711Z"
+}

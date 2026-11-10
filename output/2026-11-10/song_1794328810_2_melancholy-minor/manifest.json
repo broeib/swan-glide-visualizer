@@ -1,0 +1,22 @@
+{
+  "title": "Distant Blue (in Db)",
+  "mood": "melancholy-minor",
+  "key": "Db",
+  "bpm": 65,
+  "instrument": "piano",
+  "theme": "lofi",
+  "chordNames": [
+    "Dbm9",
+    "Dbmin-maj7",
+    "Dbm7",
+    "Gbm9",
+    "Ebm7b5",
+    "Ab7(b13)",
+    "Dbm11"
+  ],
+  "totalBeats": 20,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-10T16:40:57.805Z"
+}

@@ -1,0 +1,21 @@
+{
+  "title": "Late Night Call (in C)",
+  "mood": "smooth-rnb",
+  "key": "C",
+  "bpm": 69,
+  "instrument": "piano",
+  "theme": "pastel",
+  "chordNames": [
+    "Cmaj9",
+    "Ebmaj9",
+    "Dm9",
+    "G13",
+    "Fm9",
+    "Cmaj9"
+  ],
+  "totalBeats": 20,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-10T16:46:38.366Z"
+}

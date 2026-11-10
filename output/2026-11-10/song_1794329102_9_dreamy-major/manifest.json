@@ -1,0 +1,21 @@
+{
+  "title": "Celestial Drift (in F)",
+  "mood": "dreamy-major",
+  "key": "F",
+  "bpm": 64,
+  "instrument": "guitar",
+  "theme": "dark",
+  "chordNames": [
+    "Fmaj9",
+    "Bbmaj7(#11)",
+    "Am9",
+    "Dm9",
+    "Gm9",
+    "C13"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-10T16:45:55.879Z"
+}

@@ -1,0 +1,19 @@
+{
+  "title": "Sunday Sunset (in Eb)",
+  "mood": "smooth-rnb",
+  "key": "Eb",
+  "bpm": 70,
+  "instrument": "guitar",
+  "theme": "sunset",
+  "chordNames": [
+    "Ebmaj9",
+    "Abm9",
+    "Db13",
+    "Ebmaj9"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-10T16:42:59.067Z"
+}
