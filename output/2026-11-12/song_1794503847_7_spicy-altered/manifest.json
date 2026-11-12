@@ -1,0 +1,20 @@
+{
+  "title": "Altered Smoke (in F)",
+  "mood": "spicy-altered",
+  "key": "F",
+  "bpm": 68,
+  "instrument": "guitar",
+  "theme": "pastel",
+  "chordNames": [
+    "Gm9",
+    "Gb7(#9)",
+    "Fmaj9",
+    "D7(b13)",
+    "Ab7(#9)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-12T17:18:07.725Z"
+}

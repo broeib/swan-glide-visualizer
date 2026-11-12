@@ -1,0 +1,21 @@
+{
+  "title": "Silk & Honey (in G)",
+  "mood": "smooth-rnb",
+  "key": "G",
+  "bpm": 67,
+  "instrument": "piano",
+  "theme": "sunset",
+  "chordNames": [
+    "Gmaj9",
+    "Cmaj9",
+    "Bm7",
+    "Em9",
+    "Am9",
+    "D13"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-12T17:21:06.050Z"
+}

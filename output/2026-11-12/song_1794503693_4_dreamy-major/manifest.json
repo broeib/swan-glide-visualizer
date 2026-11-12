@@ -1,0 +1,19 @@
+{
+  "title": "Lydian Shimmer (in C)",
+  "mood": "dreamy-major",
+  "key": "C",
+  "bpm": 65,
+  "instrument": "piano",
+  "theme": "dark",
+  "chordNames": [
+    "Cmaj9",
+    "Fmaj7(#11)",
+    "Em7",
+    "Am9"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-12T17:15:37.485Z"
+}

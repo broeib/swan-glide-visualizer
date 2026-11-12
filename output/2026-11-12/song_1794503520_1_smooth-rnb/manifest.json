@@ -1,0 +1,19 @@
+{
+  "title": "Silk & Honey (in G)",
+  "mood": "smooth-rnb",
+  "key": "G",
+  "bpm": 70,
+  "instrument": "guitar",
+  "theme": "lofi",
+  "chordNames": [
+    "Gmaj9",
+    "Cm9",
+    "F13",
+    "Gmaj9"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-12T17:12:41.252Z"
+}

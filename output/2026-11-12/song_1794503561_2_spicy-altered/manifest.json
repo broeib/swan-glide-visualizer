@@ -1,0 +1,23 @@
+{
+  "title": "Tritone Whispers (in Eb)",
+  "mood": "spicy-altered",
+  "key": "Eb",
+  "bpm": 70,
+  "instrument": "piano",
+  "theme": "sunset",
+  "chordNames": [
+    "Ebmaj9",
+    "Gb7(#9)",
+    "Fm9",
+    "Bb7(#9)",
+    "Gm9",
+    "C7(b13)",
+    "Fm9",
+    "E7(b13)"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-12T17:13:47.764Z"
+}

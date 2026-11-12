@@ -1,0 +1,23 @@
+{
+  "title": "Celestial Drift (in Ab)",
+  "mood": "dreamy-major",
+  "key": "Ab",
+  "bpm": 65,
+  "instrument": "guitar",
+  "theme": "pastel",
+  "chordNames": [
+    "Abmaj9",
+    "Bbm9",
+    "Cm7",
+    "Dbmaj7(#11)",
+    "Fm9",
+    "Eb13",
+    "Dbmaj9",
+    "Ab6/9"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-12T17:16:43.935Z"
+}

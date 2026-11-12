@@ -1,0 +1,20 @@
+{
+  "title": "Warm Rhodes Breeze (in Eb)",
+  "mood": "smooth-rnb",
+  "key": "Eb",
+  "bpm": 73,
+  "instrument": "piano",
+  "theme": "lofi",
+  "chordNames": [
+    "Ebmaj9",
+    "Abm11",
+    "Db13",
+    "Fm9",
+    "Bb7(b13)"
+  ],
+  "totalBeats": 18,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-12T17:18:53.104Z"
+}

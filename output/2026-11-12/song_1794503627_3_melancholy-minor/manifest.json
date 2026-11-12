@@ -1,0 +1,21 @@
+{
+  "title": "Quiet Solitude (in Db)",
+  "mood": "melancholy-minor",
+  "key": "Db",
+  "bpm": 64,
+  "instrument": "guitar",
+  "theme": "cream",
+  "chordNames": [
+    "Dbm11",
+    "Gbm9",
+    "B13",
+    "Emaj9",
+    "Ebm7b5",
+    "Ab7(b13)"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-12T17:14:53.223Z"
+}

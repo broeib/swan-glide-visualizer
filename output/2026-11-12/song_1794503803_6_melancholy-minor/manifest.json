@@ -1,0 +1,19 @@
+{
+  "title": "Paper Lanterns (in Bb)",
+  "mood": "melancholy-minor",
+  "key": "Bb",
+  "bpm": 65,
+  "instrument": "piano",
+  "theme": "cream",
+  "chordNames": [
+    "Bbm9",
+    "Bbmin-maj7",
+    "Bbm7",
+    "Ebm9"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-12T17:17:27.788Z"
+}
