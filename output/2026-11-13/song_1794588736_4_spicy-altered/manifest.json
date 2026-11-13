@@ -1,0 +1,19 @@
+{
+  "title": "Altered Smoke (in Eb)",
+  "mood": "spicy-altered",
+  "key": "Eb",
+  "bpm": 66,
+  "instrument": "piano",
+  "theme": "lofi",
+  "chordNames": [
+    "Ebmaj9",
+    "Gb7(#9)",
+    "Fm9",
+    "E7(b13)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-13T16:52:51.060Z"
+}

@@ -1,0 +1,19 @@
+{
+  "title": "Shadows in Db (in Bb)",
+  "mood": "melancholy-minor",
+  "key": "Bb",
+  "bpm": 66,
+  "instrument": "guitar",
+  "theme": "pastel",
+  "chordNames": [
+    "Bbm9",
+    "Gbmaj7",
+    "Cm7b5",
+    "F7(b13)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-13T16:54:47.482Z"
+}
