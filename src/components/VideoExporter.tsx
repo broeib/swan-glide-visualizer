@@ -119,7 +119,7 @@ export const VideoExporter: React.FC<VideoExporterProps> = ({
       let bufferSource: AudioBufferSourceNode | null = null;
 
       try {
-        const audioResponse = await fetch('/audio/swan_glide_reference.mp3');
+        const audioResponse = await fetch(`${import.meta.env.BASE_URL}audio/swan_glide_reference.mp3`);
         if (audioResponse.ok) {
           const audioArrayBuffer = await audioResponse.arrayBuffer();
           const audioBuffer = await audioCtx.decodeAudioData(audioArrayBuffer);

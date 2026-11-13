@@ -61,7 +61,7 @@ const FALLBACK_CHORD_STEP: ChordStep = {
 /**
  * Path to the authentic studio reference recording.
  */
-const STUDIO_AUDIO_URL = '/audio/swan_glide_reference.mp3';
+const STUDIO_AUDIO_URL = `${import.meta.env.BASE_URL}audio/swan_glide_reference.mp3`;
 
 /**
  * Duration in seconds for the reference progression loop (24 seconds).

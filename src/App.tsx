@@ -11,6 +11,7 @@ import {
   Copy,
   Check,
   ExternalLink,
+  Film,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { mockProgression } from './data/mockProgression';
@@ -20,6 +21,7 @@ import { GuitarFretboard } from './components/GuitarFretboard';
 import { KeyboardDiagram } from './components/KeyboardDiagram';
 import { HeaderChordDisplay } from './components/HeaderChordDisplay';
 import { VideoExporter } from './components/VideoExporter';
+import { RendersGallery } from './components/RendersGallery';
 import {
   getThemePreset,
   THEME_PRESETS_LIST,
@@ -93,6 +95,14 @@ export const App: React.FC = () => {
     useState<MoodArchetype>('dreamy-major');
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [copiedCaption, setCopiedCaption] = useState<boolean>(false);
+  const [activeView, setActiveView] = useState<'studio' | 'renders'>(() => {
+    if (typeof window !== 'undefined') {
+      return new URLSearchParams(window.location.search).get('view') === 'renders'
+        ? 'renders'
+        : 'studio';
+    }
+    return 'studio';
+  });
 
   const themePreset = useMemo(() => getThemePreset(themeId), [themeId]);
   const isDark = themePreset.isDark;
@@ -175,6 +185,8 @@ Visualizer: Swan Glide × @ultraviolet_chorus 🕊️✨
 
   // Keyboard Shortcuts
   useEffect(() => {
+    if (activeView !== 'studio') return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
         e.target instanceof HTMLInputElement ||
@@ -204,7 +216,17 @@ Visualizer: Swan Glide × @ultraviolet_chorus 🕊️✨
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleTogglePlay, handleRestart, handleGenerateSong, toggleMute]);
+  }, [activeView, handleTogglePlay, handleRestart, handleGenerateSong, toggleMute]);
+
+  const handleSwitchView = useCallback(
+    (nextView: 'studio' | 'renders') => {
+      if (nextView === 'renders' && isPlaying) {
+        void togglePlay();
+      }
+      setActiveView(nextView);
+    },
+    [isPlaying, togglePlay]
+  );
 
   return (
     <div className="h-screen w-full bg-[#0E0D12] text-[#ECE7F2] flex flex-col items-center justify-between p-2 sm:p-4 antialiased select-none overflow-hidden">
@@ -229,35 +251,71 @@ Visualizer: Swan Glide × @ultraviolet_chorus 🕊️✨
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleCopyCaption}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-medium transition-all cursor-pointer border border-white/10"
-            title="Copy Instagram caption & hashtags"
-          >
-            {copiedCaption ? (
-              <>
-                <Check className="w-3 h-3 text-emerald-400" />
-                <span className="text-emerald-400">Copied</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3 h-3 text-white/60" />
-                <span>Caption</span>
-              </>
-            )}
-          </button>
+          <div className="flex items-center p-0.5 rounded-full bg-white/5 border border-white/10">
+            <button
+              type="button"
+              onClick={() => handleSwitchView('studio')}
+              className={clsx(
+                'px-3 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer',
+                activeView === 'studio'
+                  ? 'bg-white/15 text-white'
+                  : 'text-white/60 hover:text-white'
+              )}
+            >
+              Studio
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSwitchView('renders')}
+              className={clsx(
+                'flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer',
+                activeView === 'renders'
+                  ? 'bg-white/15 text-white'
+                  : 'text-white/60 hover:text-white'
+              )}
+            >
+              <Film className="w-3 h-3 text-purple-300" />
+              <span>Renders</span>
+            </button>
+          </div>
 
-          <VideoExporter
-            progression={currentProgression}
-            theme={themePreset}
-            instrument={instrumentMode}
-            audioElement={audioElement}
-          />
+          {activeView === 'studio' && (
+            <>
+              <button
+                type="button"
+                onClick={handleCopyCaption}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-medium transition-all cursor-pointer border border-white/10"
+                title="Copy Instagram caption & hashtags"
+              >
+                {copiedCaption ? (
+                  <>
+                    <Check className="w-3 h-3 text-emerald-400" />
+                    <span className="text-emerald-400">Copied</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3 h-3 text-white/60" />
+                    <span>Caption</span>
+                  </>
+                )}
+              </button>
+
+              <VideoExporter
+                progression={currentProgression}
+                theme={themePreset}
+                instrument={instrumentMode}
+                audioElement={audioElement}
+              />
+            </>
+          )}
         </div>
       </header>
 
-      {/* Centerpiece 9:16 Portrait Visualizer Canvas */}
+      {activeView === 'renders' ? (
+        <RendersGallery />
+      ) : (
+        <>
+          {/* Centerpiece 9:16 Portrait Visualizer Canvas */}
       <main
         className={clsx(
           'w-auto aspect-[9/16] h-[66vh] sm:h-[72vh] max-h-[760px] max-w-full rounded-2xl sm:rounded-3xl overflow-hidden relative flex flex-col justify-between transition-all duration-500 shadow-2xl shrink-0 my-auto',
@@ -497,6 +555,8 @@ Visualizer: Swan Glide × @ultraviolet_chorus 🕊️✨
           </div>
         </div>
       </nav>
+        </>
+      )}
 
       {/* Footer Attributions */}
       <footer className="w-full max-w-4xl px-3 py-1 hidden sm:flex items-center justify-between text-[11px] text-white/40 shrink-0">
