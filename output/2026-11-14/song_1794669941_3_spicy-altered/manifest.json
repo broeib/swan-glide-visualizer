@@ -1,0 +1,23 @@
+{
+  "title": "Tritone Whispers (in Ab)",
+  "mood": "spicy-altered",
+  "key": "Ab",
+  "bpm": 70,
+  "instrument": "guitar",
+  "theme": "pastel",
+  "chordNames": [
+    "Abmaj9",
+    "B7(#9)",
+    "Bbm9",
+    "Eb7(#9)",
+    "Cm9",
+    "F7(b13)",
+    "Bbm9",
+    "A7(b13)"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-14T15:26:30.807Z"
+}

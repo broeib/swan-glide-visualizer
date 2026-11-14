@@ -1,0 +1,19 @@
+{
+  "title": "Lydian Shimmer (in F)",
+  "mood": "dreamy-major",
+  "key": "F",
+  "bpm": 65,
+  "instrument": "guitar",
+  "theme": "cream",
+  "chordNames": [
+    "Fmaj9",
+    "Bbmaj7(#11)",
+    "Am7",
+    "Dm9"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-14T15:27:42.146Z"
+}
