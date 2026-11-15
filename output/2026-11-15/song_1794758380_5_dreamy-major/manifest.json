@@ -1,0 +1,19 @@
+{
+  "title": "Celestial Drift (in Eb)",
+  "mood": "dreamy-major",
+  "key": "Eb",
+  "bpm": 68,
+  "instrument": "guitar",
+  "theme": "lofi",
+  "chordNames": [
+    "Eb6/9",
+    "Abmaj7(#11)",
+    "Dbmaj9",
+    "Ebmaj9"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-15T16:00:21.430Z"
+}

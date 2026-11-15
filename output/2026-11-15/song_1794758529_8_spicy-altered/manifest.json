@@ -1,0 +1,23 @@
+{
+  "title": "Neon Midnight (in Bb)",
+  "mood": "spicy-altered",
+  "key": "Bb",
+  "bpm": 70,
+  "instrument": "piano",
+  "theme": "pastel",
+  "chordNames": [
+    "Bbmaj9",
+    "Db7(#9)",
+    "Cm9",
+    "F7(#9)",
+    "Dm9",
+    "G7(b13)",
+    "Cm9",
+    "B7(b13)"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-15T16:03:13.837Z"
+}

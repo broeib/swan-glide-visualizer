@@ -1,0 +1,21 @@
+{
+  "title": "Distant Blue (in Eb)",
+  "mood": "melancholy-minor",
+  "key": "Eb",
+  "bpm": 64,
+  "instrument": "piano",
+  "theme": "sunset",
+  "chordNames": [
+    "Ebm11",
+    "Abm9",
+    "Db13",
+    "Gbmaj9",
+    "Fm7b5",
+    "Bb7(b13)"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-15T16:05:27.114Z"
+}
