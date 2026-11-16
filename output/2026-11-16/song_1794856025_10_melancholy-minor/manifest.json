@@ -1,0 +1,20 @@
+{
+  "title": "Quiet Solitude (in F)",
+  "mood": "melancholy-minor",
+  "key": "F",
+  "bpm": 67,
+  "instrument": "piano",
+  "theme": "dark",
+  "chordNames": [
+    "Fm9",
+    "Bbm11",
+    "Dbmaj7(#11)",
+    "Gm7b5",
+    "C7(b13)"
+  ],
+  "totalBeats": 18,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-16T19:07:53.694Z"
+}

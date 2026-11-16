@@ -1,0 +1,19 @@
+{
+  "title": "Morning Silk (in Ab)",
+  "mood": "dreamy-major",
+  "key": "Ab",
+  "bpm": 68,
+  "instrument": "guitar",
+  "theme": "sunset",
+  "chordNames": [
+    "Ab6/9",
+    "Dbmaj7(#11)",
+    "Gbmaj9",
+    "Abmaj9"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-16T19:02:00.573Z"
+}

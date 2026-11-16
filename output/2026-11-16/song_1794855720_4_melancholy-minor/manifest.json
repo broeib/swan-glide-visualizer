@@ -1,0 +1,22 @@
+{
+  "title": "Midnight Reverie (in G)",
+  "mood": "melancholy-minor",
+  "key": "G",
+  "bpm": 65,
+  "instrument": "piano",
+  "theme": "dark",
+  "chordNames": [
+    "Gm9",
+    "Gmin-maj7",
+    "Gm7",
+    "Cm9",
+    "Am7b5",
+    "D7(b13)",
+    "Gm11"
+  ],
+  "totalBeats": 20,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-16T19:02:55.998Z"
+}
