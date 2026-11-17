@@ -1,0 +1,19 @@
+{
+  "title": "Golden Hour Glow (in Eb)",
+  "mood": "dreamy-major",
+  "key": "Eb",
+  "bpm": 65,
+  "instrument": "piano",
+  "theme": "sunset",
+  "chordNames": [
+    "Ebmaj9",
+    "Abmaj7(#11)",
+    "Gm7",
+    "Cm9"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-17T18:02:21.844Z"
+}

@@ -1,0 +1,23 @@
+{
+  "title": "Velvet Horizon (in Bb)",
+  "mood": "dreamy-major",
+  "key": "Bb",
+  "bpm": 65,
+  "instrument": "piano",
+  "theme": "sunset",
+  "chordNames": [
+    "Bbmaj9",
+    "Cm9",
+    "Dm7",
+    "Ebmaj7(#11)",
+    "Gm9",
+    "F13",
+    "Ebmaj9",
+    "Bb6/9"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-17T18:00:06.321Z"
+}
