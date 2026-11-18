@@ -1,0 +1,19 @@
+{
+  "title": "Late Night Call (in Ab)",
+  "mood": "smooth-rnb",
+  "key": "Ab",
+  "bpm": 70,
+  "instrument": "guitar",
+  "theme": "cream",
+  "chordNames": [
+    "Abmaj9",
+    "Dbm9",
+    "Gb13",
+    "Abmaj9"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-18T17:46:59.969Z"
+}

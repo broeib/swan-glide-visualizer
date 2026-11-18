@@ -1,0 +1,19 @@
+{
+  "title": "Lydian Shimmer (in G)",
+  "mood": "dreamy-major",
+  "key": "G",
+  "bpm": 68,
+  "instrument": "piano",
+  "theme": "lofi",
+  "chordNames": [
+    "G6/9",
+    "Cmaj7(#11)",
+    "Fmaj9",
+    "Gmaj9"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-18T17:47:33.725Z"
+}

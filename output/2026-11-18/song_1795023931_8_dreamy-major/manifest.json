@@ -1,0 +1,23 @@
+{
+  "title": "Lydian Shimmer (in Db)",
+  "mood": "dreamy-major",
+  "key": "Db",
+  "bpm": 65,
+  "instrument": "piano",
+  "theme": "sunset",
+  "chordNames": [
+    "Dbmaj9",
+    "Ebm9",
+    "Fm7",
+    "Gbmaj7(#11)",
+    "Bbm9",
+    "Ab13",
+    "Gbmaj9",
+    "Db6/9"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-18T17:46:29.201Z"
+}
