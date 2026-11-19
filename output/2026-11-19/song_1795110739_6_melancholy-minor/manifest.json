@@ -1,0 +1,19 @@
+{
+  "title": "Autumn Raindrops (in Ab)",
+  "mood": "melancholy-minor",
+  "key": "Ab",
+  "bpm": 65,
+  "instrument": "piano",
+  "theme": "sunset",
+  "chordNames": [
+    "Abm9",
+    "Abmin-maj7",
+    "Abm7",
+    "Dbm9"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-19T17:53:04.238Z"
+}

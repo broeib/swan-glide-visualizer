@@ -1,0 +1,20 @@
+{
+  "title": "Midnight Reverie (in Db)",
+  "mood": "melancholy-minor",
+  "key": "Db",
+  "bpm": 67,
+  "instrument": "guitar",
+  "theme": "cream",
+  "chordNames": [
+    "Dbm9",
+    "Gbm11",
+    "Amaj7(#11)",
+    "Ebm7b5",
+    "Ab7(b13)"
+  ],
+  "totalBeats": 18,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-19T17:50:29.519Z"
+}

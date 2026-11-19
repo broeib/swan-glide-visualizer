@@ -1,0 +1,22 @@
+{
+  "title": "Autumn Raindrops (in F)",
+  "mood": "melancholy-minor",
+  "key": "F",
+  "bpm": 65,
+  "instrument": "piano",
+  "theme": "cream",
+  "chordNames": [
+    "Fm9",
+    "Fmin-maj7",
+    "Fm7",
+    "Bbm9",
+    "Gm7b5",
+    "C7(b13)",
+    "Fm11"
+  ],
+  "totalBeats": 20,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-19T17:56:48.666Z"
+}
