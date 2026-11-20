@@ -1,0 +1,22 @@
+{
+  "title": "Midnight Reverie (in C)",
+  "mood": "melancholy-minor",
+  "key": "C",
+  "bpm": 65,
+  "instrument": "guitar",
+  "theme": "dark",
+  "chordNames": [
+    "Cm9",
+    "Cmin-maj7",
+    "Cm7",
+    "Fm9",
+    "Dm7b5",
+    "G7(b13)",
+    "Cm11"
+  ],
+  "totalBeats": 20,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-20T17:31:53.492Z"
+}

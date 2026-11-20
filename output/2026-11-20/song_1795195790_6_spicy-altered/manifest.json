@@ -1,0 +1,22 @@
+{
+  "title": "Chromatic Glide (in Eb)",
+  "mood": "spicy-altered",
+  "key": "Eb",
+  "bpm": 64,
+  "instrument": "piano",
+  "theme": "sunset",
+  "chordNames": [
+    "Ebmaj9",
+    "D7(#9)",
+    "Gm9",
+    "Fm9",
+    "Bb13",
+    "Ebmaj7(#11)",
+    "D7(b13)"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-20T17:31:00.149Z"
+}

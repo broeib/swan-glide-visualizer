@@ -1,0 +1,23 @@
+{
+  "title": "After Hours Jazz (in Bb)",
+  "mood": "spicy-altered",
+  "key": "Bb",
+  "bpm": 70,
+  "instrument": "guitar",
+  "theme": "dark",
+  "chordNames": [
+    "Bbmaj9",
+    "Db7(#9)",
+    "Cm9",
+    "F7(#9)",
+    "Dm9",
+    "G7(b13)",
+    "Cm9",
+    "B7(b13)"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-20T17:28:09.372Z"
+}

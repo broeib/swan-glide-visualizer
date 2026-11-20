@@ -1,0 +1,21 @@
+{
+  "title": "Morning Silk (in Eb)",
+  "mood": "dreamy-major",
+  "key": "Eb",
+  "bpm": 64,
+  "instrument": "piano",
+  "theme": "cream",
+  "chordNames": [
+    "Ebmaj9",
+    "Abmaj7(#11)",
+    "Gm9",
+    "Cm9",
+    "Fm9",
+    "Bb13"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-20T17:34:46.244Z"
+}

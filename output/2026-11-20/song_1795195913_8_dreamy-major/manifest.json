@@ -1,0 +1,20 @@
+{
+  "title": "Sunlit Waves (in C)",
+  "mood": "dreamy-major",
+  "key": "C",
+  "bpm": 67,
+  "instrument": "piano",
+  "theme": "pastel",
+  "chordNames": [
+    "Cmaj9",
+    "Dm9",
+    "G13",
+    "Em7",
+    "Fmaj7(#11)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-20T17:32:35.003Z"
+}
