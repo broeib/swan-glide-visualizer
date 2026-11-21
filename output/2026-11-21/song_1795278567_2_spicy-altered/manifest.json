@@ -1,0 +1,21 @@
+{
+  "title": "Neon Midnight (in Eb)",
+  "mood": "spicy-altered",
+  "key": "Eb",
+  "bpm": 65,
+  "instrument": "piano",
+  "theme": "pastel",
+  "chordNames": [
+    "Ebmaj9",
+    "C7(#9)",
+    "Fm9",
+    "Bb7(alt)",
+    "E7(b13)",
+    "Ebmaj7(#11)"
+  ],
+  "totalBeats": 22,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-21T16:30:20.295Z"
+}

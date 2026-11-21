@@ -1,0 +1,23 @@
+{
+  "title": "Velvet Horizon (in G)",
+  "mood": "dreamy-major",
+  "key": "G",
+  "bpm": 65,
+  "instrument": "guitar",
+  "theme": "dark",
+  "chordNames": [
+    "Gmaj9",
+    "Am9",
+    "Bm7",
+    "Cmaj7(#11)",
+    "Em9",
+    "D13",
+    "Cmaj9",
+    "G6/9"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-21T16:29:27.439Z"
+}

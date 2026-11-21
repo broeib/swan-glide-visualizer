@@ -1,0 +1,20 @@
+{
+  "title": "Smooth Glide (in Bb)",
+  "mood": "smooth-rnb",
+  "key": "Bb",
+  "bpm": 73,
+  "instrument": "guitar",
+  "theme": "dark",
+  "chordNames": [
+    "Bbmaj9",
+    "Ebm11",
+    "Ab13",
+    "Cm9",
+    "F7(b13)"
+  ],
+  "totalBeats": 18,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-21T16:33:58.184Z"
+}

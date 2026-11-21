@@ -1,0 +1,19 @@
+{
+  "title": "Sunlit Waves (in Db)",
+  "mood": "dreamy-major",
+  "key": "Db",
+  "bpm": 68,
+  "instrument": "guitar",
+  "theme": "cream",
+  "chordNames": [
+    "Db6/9",
+    "Gbmaj7(#11)",
+    "Bmaj9",
+    "Dbmaj9"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-21T16:35:05.666Z"
+}
