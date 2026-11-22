@@ -1,0 +1,19 @@
+{
+  "title": "Velvet Horizon (in Ab)",
+  "mood": "dreamy-major",
+  "key": "Ab",
+  "bpm": 65,
+  "instrument": "piano",
+  "theme": "cream",
+  "chordNames": [
+    "Abmaj9",
+    "Dbmaj7(#11)",
+    "Cm7",
+    "Fm9"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-22T16:48:05.895Z"
+}

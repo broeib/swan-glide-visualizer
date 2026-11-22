@@ -1,0 +1,23 @@
+{
+  "title": "Neon Midnight (in F)",
+  "mood": "spicy-altered",
+  "key": "F",
+  "bpm": 70,
+  "instrument": "piano",
+  "theme": "cream",
+  "chordNames": [
+    "Fmaj9",
+    "Ab7(#9)",
+    "Gm9",
+    "C7(#9)",
+    "Am9",
+    "D7(b13)",
+    "Gm9",
+    "Gb7(b13)"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-22T16:53:01.380Z"
+}

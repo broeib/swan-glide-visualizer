@@ -1,0 +1,21 @@
+{
+  "title": "Slow Motion Love (in Db)",
+  "mood": "smooth-rnb",
+  "key": "Db",
+  "bpm": 67,
+  "instrument": "piano",
+  "theme": "sunset",
+  "chordNames": [
+    "Dbmaj9",
+    "Gbmaj9",
+    "Fm7",
+    "Bbm9",
+    "Ebm9",
+    "Ab13"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-22T16:51:18.814Z"
+}
