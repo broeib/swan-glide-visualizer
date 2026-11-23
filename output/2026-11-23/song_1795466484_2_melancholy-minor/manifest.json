@@ -1,0 +1,20 @@
+{
+  "title": "Autumn Raindrops (in Bb)",
+  "mood": "melancholy-minor",
+  "key": "Bb",
+  "bpm": 67,
+  "instrument": "piano",
+  "theme": "dark",
+  "chordNames": [
+    "Bbm9",
+    "Ebm11",
+    "Gbmaj7(#11)",
+    "Cm7b5",
+    "F7(b13)"
+  ],
+  "totalBeats": 18,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-23T20:42:13.751Z"
+}
