@@ -1,0 +1,21 @@
+{
+  "title": "Spicy Diminished (in Bb)",
+  "mood": "spicy-altered",
+  "key": "Bb",
+  "bpm": 65,
+  "instrument": "guitar",
+  "theme": "cream",
+  "chordNames": [
+    "Bbmaj9",
+    "G7(#9)",
+    "Cm9",
+    "F7(alt)",
+    "B7(b13)",
+    "Bbmaj7(#11)"
+  ],
+  "totalBeats": 22,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-24T19:50:36.127Z"
+}
