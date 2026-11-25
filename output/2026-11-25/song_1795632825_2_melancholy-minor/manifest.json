@@ -1,0 +1,19 @@
+{
+  "title": "Shadows in Db (in Db)",
+  "mood": "melancholy-minor",
+  "key": "Db",
+  "bpm": 66,
+  "instrument": "piano",
+  "theme": "dark",
+  "chordNames": [
+    "Dbm9",
+    "Amaj7",
+    "Ebm7b5",
+    "Ab7(b13)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-25T18:54:15.211Z"
+}
