@@ -1,0 +1,20 @@
+{
+  "title": "Chromatic Glide (in Bb)",
+  "mood": "spicy-altered",
+  "key": "Bb",
+  "bpm": 68,
+  "instrument": "guitar",
+  "theme": "cream",
+  "chordNames": [
+    "Cm9",
+    "B7(#9)",
+    "Bbmaj9",
+    "G7(b13)",
+    "Db7(#9)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-26T18:42:51.435Z"
+}

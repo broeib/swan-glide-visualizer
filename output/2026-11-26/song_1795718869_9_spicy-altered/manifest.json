@@ -1,0 +1,21 @@
+{
+  "title": "Chromatic Glide (in G)",
+  "mood": "spicy-altered",
+  "key": "G",
+  "bpm": 65,
+  "instrument": "guitar",
+  "theme": "sunset",
+  "chordNames": [
+    "Gmaj9",
+    "E7(#9)",
+    "Am9",
+    "D7(alt)",
+    "G#7(b13)",
+    "Gmaj7(#11)"
+  ],
+  "totalBeats": 22,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-26T18:48:38.567Z"
+}
