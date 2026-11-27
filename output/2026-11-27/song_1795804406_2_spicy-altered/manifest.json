@@ -1,0 +1,23 @@
+{
+  "title": "After Hours Jazz (in C)",
+  "mood": "spicy-altered",
+  "key": "C",
+  "bpm": 70,
+  "instrument": "piano",
+  "theme": "dark",
+  "chordNames": [
+    "Cmaj9",
+    "Eb7(#9)",
+    "Dm9",
+    "G7(#9)",
+    "Em9",
+    "A7(b13)",
+    "Dm9",
+    "Db7(b13)"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-27T18:34:31.930Z"
+}

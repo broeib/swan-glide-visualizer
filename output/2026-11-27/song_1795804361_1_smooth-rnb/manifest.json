@@ -1,0 +1,20 @@
+{
+  "title": "Sunday Sunset (in Db)",
+  "mood": "smooth-rnb",
+  "key": "Db",
+  "bpm": 73,
+  "instrument": "guitar",
+  "theme": "pastel",
+  "chordNames": [
+    "Dbmaj9",
+    "Gbm11",
+    "B13",
+    "Ebm9",
+    "Ab7(b13)"
+  ],
+  "totalBeats": 18,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-27T18:33:26.479Z"
+}

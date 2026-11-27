@@ -1,0 +1,21 @@
+{
+  "title": "Slow Motion Love (in G)",
+  "mood": "smooth-rnb",
+  "key": "G",
+  "bpm": 69,
+  "instrument": "piano",
+  "theme": "lofi",
+  "chordNames": [
+    "Gmaj9",
+    "A#maj9",
+    "Am9",
+    "D13",
+    "Cm9",
+    "Gmaj9"
+  ],
+  "totalBeats": 20,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-27T18:37:33.208Z"
+}

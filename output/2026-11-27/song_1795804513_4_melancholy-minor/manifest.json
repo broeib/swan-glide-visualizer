@@ -1,0 +1,19 @@
+{
+  "title": "Quiet Solitude (in Eb)",
+  "mood": "melancholy-minor",
+  "key": "Eb",
+  "bpm": 66,
+  "instrument": "piano",
+  "theme": "cream",
+  "chordNames": [
+    "Ebm9",
+    "Bmaj7",
+    "Fm7b5",
+    "Bb7(b13)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-27T18:35:56.897Z"
+}

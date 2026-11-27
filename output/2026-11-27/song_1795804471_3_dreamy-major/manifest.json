@@ -1,0 +1,20 @@
+{
+  "title": "Golden Hour Glow (in Bb)",
+  "mood": "dreamy-major",
+  "key": "Bb",
+  "bpm": 67,
+  "instrument": "guitar",
+  "theme": "sunset",
+  "chordNames": [
+    "Bbmaj9",
+    "Cm9",
+    "F13",
+    "Dm7",
+    "Ebmaj7(#11)"
+  ],
+  "totalBeats": 16,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-27T18:35:13.419Z"
+}

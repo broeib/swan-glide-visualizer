@@ -1,0 +1,21 @@
+{
+  "title": "Paper Lanterns (in Ab)",
+  "mood": "melancholy-minor",
+  "key": "Ab",
+  "bpm": 64,
+  "instrument": "guitar",
+  "theme": "dark",
+  "chordNames": [
+    "Abm11",
+    "Dbm9",
+    "Gb13",
+    "Bmaj9",
+    "Bbm7b5",
+    "Eb7(b13)"
+  ],
+  "totalBeats": 24,
+  "videoFile": "video.mp4",
+  "coverFile": "cover.jpg",
+  "captionFile": "caption.txt",
+  "createdAt": "2026-11-27T18:38:40.047Z"
+}
